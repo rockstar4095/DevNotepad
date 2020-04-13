@@ -5,11 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.devnotepad.Article
+import com.example.devnotepad.DirectionOfStudy
+import com.example.devnotepad.Topic
 
-@Database(entities = [Article::class], version = 1)
+@Database(entities = [Article::class, Topic::class, DirectionOfStudy::class], version = 3)
 public abstract class ArticleRoomDatabase : RoomDatabase() {
 
     abstract fun articleDao(): ArticleDao
+    abstract fun topicDao(): TopicDao
+    abstract fun directionDao(): DirectionDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the same time.
@@ -27,7 +31,8 @@ public abstract class ArticleRoomDatabase : RoomDatabase() {
                     context.applicationContext,
                     ArticleRoomDatabase::class.java,
                     "article_database"
-                ).build()
+                ).fallbackToDestructiveMigration()
+                    .build()
 
                 INSTANCE = instance
                 return instance

@@ -2,20 +2,43 @@ package com.example.devnotepad
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 
 /**
  * Направление для изучения, например: Java, Kotlin, Android и т.д.
  * */
-class DirectionOfStudy(private val name: String)
+@Entity(tableName = "directions_table")
+class DirectionOfStudy(
+    @PrimaryKey
+    @SerializedName("id")
+    val idFromServer: Int,
+    val name: String
+) {
+    override fun equals(other: Any?): Boolean {
+        if (other is DirectionOfStudy) {
+            return other.name == this.name
+        }
+
+        return super.equals(other)
+    }
+
+    override fun hashCode(): Int {
+        var result = idFromServer
+        result = 31 * result + name.hashCode()
+        return result
+    }
+}
 
 /**
  * Тема для изучения, например: SOLID, OOP и т.д.
  * */
+@Entity(tableName = "topics_table")
 class Topic(
-    private val directionOfStudy: String,
-    private val name: String,
-    private val views: Int,
-    private val progress: Int
+    @PrimaryKey
+    val name: String,
+    val directionOfStudy: String,
+    val views: Int,
+    val progress: Int
 )
 
 /**
@@ -29,12 +52,13 @@ class Topic(
  * */
 @Entity(tableName = "articles_table")
 class Article(
+    val topic: String,
+    val version: Int,
+    val views: Int,
+    val title: String,
+    val text: String,
+    val isDifficult: Boolean
+) {
     @PrimaryKey(autoGenerate = true)
-    public val id: Int,
-    public val version: Int,
-    public val views: Int,
-    public val topic: String,
-    public val title: String,
-    public val text: String,
-    public val isDifficult: Boolean
-)
+    var id: Int? = null
+}

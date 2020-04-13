@@ -1,17 +1,15 @@
-package com.example.devnotepad.ui.activity_main
+package com.example.devnotepad.ui.fragment_main
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
 import com.example.devnotepad.Article
+import com.example.devnotepad.DirectionOfStudy
+import com.example.devnotepad.Topic
 import com.example.devnotepad.data.Repository
 import com.example.devnotepad.data.local.ArticleRoomDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-class ArticleViewModel(application: Application) : AndroidViewModel(application) {
-
+class MainFragmentViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: Repository
     /**
      * Using LiveData and caching what getAllArticles returns has several benefits:
@@ -20,17 +18,16 @@ class ArticleViewModel(application: Application) : AndroidViewModel(application)
      * - Repository is completely separated from the UI through the ViewModel.
      * */
     val allArticles: LiveData<List<Article>>
+    val allTopics: LiveData<List<Topic>>
+    val allDirections: LiveData<List<DirectionOfStudy>>
 
     init {
         val articleDao = ArticleRoomDatabase.getDatabase(application).articleDao()
-        repository = Repository(articleDao)
+        val topicDao = ArticleRoomDatabase.getDatabase(application).topicDao()
+        val directionDao = ArticleRoomDatabase.getDatabase(application).directionDao()
+        repository = Repository(articleDao, topicDao, directionDao)
         allArticles = repository.allArticles
-    }
-
-    /**
-     * Launching a new coroutine to insert the data in a non-blocking way
-     * */
-    fun insert(article: Article) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insert(article)
+        allTopics = repository.allTopics
+        allDirections = repository.allDirections
     }
 }
