@@ -8,8 +8,8 @@ import com.example.devnotepad.Article
 import com.example.devnotepad.DirectionOfStudy
 import com.example.devnotepad.Topic
 
-@Database(entities = [Article::class, Topic::class, DirectionOfStudy::class], version = 3)
-public abstract class ArticleRoomDatabase : RoomDatabase() {
+@Database(entities = [Article::class, Topic::class, DirectionOfStudy::class], version = 4)
+abstract class ArticleRoomDatabase : RoomDatabase() {
 
     abstract fun articleDao(): ArticleDao
     abstract fun topicDao(): TopicDao

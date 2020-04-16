@@ -1,4 +1,4 @@
-package com.example.devnotepad.ui.fragment_main
+package com.example.devnotepad.ui.fragment_directions
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -14,14 +14,14 @@ import com.example.devnotepad.DirectionOfStudy
 import com.example.devnotepad.R
 import kotlinx.android.synthetic.main.main_fragment.*
 
-class MainFragment : Fragment(), DirectionsAdapter.OnItemClickListener {
+class DirectionsFragment : Fragment(), DirectionsAdapter.OnItemClickListener {
 
     companion object {
         fun newInstance() =
-            MainFragment()
+            DirectionsFragment()
     }
 
-    private lateinit var fragmentViewModel: MainFragmentViewModel
+    private lateinit var fragmentViewModel: DirectionsFragmentViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,10 +33,15 @@ class MainFragment : Fragment(), DirectionsAdapter.OnItemClickListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        fragmentViewModel = ViewModelProvider(this).get(MainFragmentViewModel::class.java)
+
+        fragmentViewModel = ViewModelProvider(this).get(DirectionsFragmentViewModel::class.java)
+
         val adapter = DirectionsAdapter(requireContext(), this)
+
         mainRecyclerView.adapter = adapter
         mainRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        fragmentViewModel.makeRequestForDirections()
         fragmentViewModel.allDirections.observe(viewLifecycleOwner, Observer { directions ->
             directions?.let { adapter.setArticles(it) }
         })

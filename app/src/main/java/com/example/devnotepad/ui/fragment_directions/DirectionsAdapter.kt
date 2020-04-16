@@ -1,4 +1,4 @@
-package com.example.devnotepad.ui.fragment_main
+package com.example.devnotepad.ui.fragment_directions
 
 import android.content.Context
 import android.view.LayoutInflater

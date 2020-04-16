@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 /**
- * Направление для изучения, например: Java, Kotlin, Android и т.д.
+ * Направление для изучения, например: Java, Kotlin, Android и т.д..
  * */
 @Entity(tableName = "directions_table")
 class DirectionOfStudy(
@@ -35,8 +35,10 @@ class DirectionOfStudy(
 @Entity(tableName = "topics_table")
 class Topic(
     @PrimaryKey
-    val name: String,
+    @SerializedName("id")
+    val idFromServer: Int,
     val directionOfStudy: String,
+    val name: String,
     val views: Int,
     val progress: Int
 )
@@ -52,13 +54,13 @@ class Topic(
  * */
 @Entity(tableName = "articles_table")
 class Article(
+    @PrimaryKey
+    @SerializedName("id")
+    val idFromServer: Int,
     val topic: String,
     val version: Int,
-    val views: Int,
-    val title: String,
+    val name: String,
     val text: String,
+    val views: Int,
     val isDifficult: Boolean
-) {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int? = null
-}
+)
