@@ -5,9 +5,9 @@
     android:orientation="vertical">
 
     <TextView
-        android:text="main_item"
         android:id="@+id/textView"
         style="@style/article_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="main_item" />
 </LinearLayout>

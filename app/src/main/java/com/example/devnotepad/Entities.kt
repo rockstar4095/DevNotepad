@@ -13,21 +13,7 @@ class DirectionOfStudy(
     @SerializedName("id")
     val idFromServer: Int,
     val name: String
-) {
-    override fun equals(other: Any?): Boolean {
-        if (other is DirectionOfStudy) {
-            return other.name == this.name
-        }
-
-        return super.equals(other)
-    }
-
-    override fun hashCode(): Int {
-        var result = idFromServer
-        result = 31 * result + name.hashCode()
-        return result
-    }
-}
+)
 
 /**
  * Тема для изучения, например: SOLID, OOP и т.д.

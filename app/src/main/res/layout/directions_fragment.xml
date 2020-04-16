@@ -6,7 +6,7 @@
     tools:context=".ui.fragment_directions.DirectionsFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/mainRecyclerView"
+        android:id="@+id/directionsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

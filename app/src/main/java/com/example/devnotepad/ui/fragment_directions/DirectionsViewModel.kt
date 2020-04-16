@@ -16,7 +16,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class DirectionsFragmentViewModel(application: Application) : AndroidViewModel(application) {
+class DirectionsViewModel(application: Application) : AndroidViewModel(application) {
     private val directionsRepository: DirectionsRepository
     val allDirections: LiveData<List<DirectionOfStudy>>
     private val api: DevNotepadApi

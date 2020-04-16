@@ -8,20 +8,19 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.DirectionOfStudy
 import com.example.devnotepad.R
+import kotlinx.android.synthetic.main.direction_item.view.*
 
 class DirectionsAdapter internal constructor(
     context: Context,
-    private val onItemClickListener: OnItemClickListener
-) :
-    RecyclerView.Adapter<DirectionsAdapter.DirectionsViewHolder>() {
+    private val onDirectionClickListener: OnDirectionClickListener
+) : RecyclerView.Adapter<DirectionsAdapter.DirectionsViewHolder>() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
 
-    // cached copy of directions
     private var directions = emptyList<DirectionOfStudy>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DirectionsViewHolder {
-        val itemView = inflater.inflate(R.layout.directions_item, parent, false)
+        val itemView = inflater.inflate(R.layout.direction_item, parent, false)
         return DirectionsViewHolder(itemView)
     }
 
@@ -30,26 +29,25 @@ class DirectionsAdapter internal constructor(
     override fun onBindViewHolder(holder: DirectionsViewHolder, position: Int) {
         val current = directions[position]
         holder.directionItemView.text = current.name
-        holder.bind(current, onItemClickListener)
+        holder.bind(current, onDirectionClickListener)
     }
 
-    internal fun setArticles(directions: List<DirectionOfStudy>) {
+    internal fun setDirections(directions: List<DirectionOfStudy>) {
         this.directions = directions
         notifyDataSetChanged()
     }
 
     inner class DirectionsViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        val directionItemView: TextView = itemView.findViewById(R.id.textView)
+        val directionItemView: TextView = itemView.textView
 
-        fun bind(directionOfStudy: DirectionOfStudy, onItemClickListener: OnItemClickListener) {
+        fun bind(
+            directionOfStudy: DirectionOfStudy,
+            onDirectionClickListener: OnDirectionClickListener
+        ) {
             itemView.setOnClickListener {
-                onItemClickListener.onItemClick(directionOfStudy)
+                onDirectionClickListener.onDirectionClick(directionOfStudy)
             }
         }
-    }
-
-    interface OnItemClickListener {
-        fun onItemClick(directionOfStudy: DirectionOfStudy)
     }
 }
