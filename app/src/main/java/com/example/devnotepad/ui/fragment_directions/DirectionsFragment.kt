@@ -58,6 +58,12 @@ class DirectionsFragment : Fragment(),
         topicsFragment.arguments = bundle
 
         activity?.supportFragmentManager?.beginTransaction()
+            ?.setCustomAnimations(
+                R.anim.slide_in_from_right,
+                R.anim.slide_out_to_left,
+                R.anim.slide_in_from_left,
+                R.anim.slide_out_to_right)
+
             ?.replace(R.id.fragmentContainer, topicsFragment)
             ?.addToBackStack(null)
             ?.commit()

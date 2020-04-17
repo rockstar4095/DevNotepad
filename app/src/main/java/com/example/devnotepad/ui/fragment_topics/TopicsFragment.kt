@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,14 +25,14 @@ class TopicsFragment : Fragment(),
     }
 
     private lateinit var viewModel: TopicsViewModel
-    private lateinit var gottenDirection: String
+    private lateinit var gottenDirectionName: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        gottenDirection = arguments!!.getString(DirectionsFragment.directionKey)!!
+        gottenDirectionName = arguments!!.getString(DirectionsFragment.directionKey)!!
 
         return inflater.inflate(R.layout.topics_fragment, container, false)
     }
@@ -60,7 +59,7 @@ class TopicsFragment : Fragment(),
         val sortedTopics: ArrayList<Topic> = ArrayList()
 
         for (topic in topics) {
-            if (topic.directionOfStudy == gottenDirection) {
+            if (topic.directionOfStudy == gottenDirectionName) {
                 sortedTopics.add(topic)
             }
         }
@@ -76,6 +75,12 @@ class TopicsFragment : Fragment(),
         articlesFragment.arguments = bundle
 
         activity?.supportFragmentManager?.beginTransaction()
+            ?.setCustomAnimations(
+                R.anim.slide_in_from_right,
+                R.anim.slide_out_to_left,
+                R.anim.slide_in_from_left,
+                R.anim.slide_out_to_right)
+
             ?.replace(R.id.fragmentContainer, articlesFragment)
             ?.addToBackStack(null)
             ?.commit()

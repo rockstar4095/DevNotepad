@@ -20,6 +20,9 @@ interface ArticleDao {
     @Query("SELECT * FROM articles_table ORDER BY name ASC")
     fun getAllArticles(): LiveData<List<Article>>
 
+    @Query("SELECT * FROM articles_table WHERE name = :articleName")
+    fun getArticle(articleName: String): LiveData<Article>
+
     /**
      * В случае, если статья уже существует, но есть необходимость заменить её содержимое
      * более новым, статья заменяется в БД.

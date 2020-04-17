@@ -12,6 +12,10 @@ class ArticlesRepository(private val articleDao: ArticleDao) {
     val allArticles: LiveData<List<Article>> = articleDao.getAllArticles()
 
     /**
+     * LiveData статься для получения содержимого.
+     * */
+
+    /**
      * Синхронное получение списка статей.
      * */
     suspend fun getAllArticlesSync(): List<Article> {
