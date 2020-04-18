@@ -86,3 +86,21 @@ class Article(
         }
     }
 }
+
+@Entity(tableName = "articles_headers_table")
+class ArticleHeader(
+    @PrimaryKey
+    @SerializedName("id")
+    val idFromServer: Int,
+    val articleIdFromServer: Int,
+    val header: String
+)
+
+@Entity(tableName = "articles_paragraphs_table")
+class ArticleParagraph(
+    @PrimaryKey
+    @SerializedName("id")
+    val idFromServer: Int,
+    val articleIdFromServer: Int,
+    val paragraph: String
+)

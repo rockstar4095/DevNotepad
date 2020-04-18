@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.devnotepad.DirectionOfStudy
 import com.example.devnotepad.data.DirectionsRepository
-import com.example.devnotepad.data.local.ArticleRoomDatabase
+import com.example.devnotepad.data.local.KnowledgeRoomDatabase
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +26,7 @@ class DirectionsViewModel(application: Application) : AndroidViewModel(applicati
         val retrofitInstance = RetrofitCreator.getRetrofit()
         api = retrofitInstance.create(DevNotepadApi::class.java)
 
-        val directionDao = ArticleRoomDatabase.getDatabase(application).directionDao()
+        val directionDao = KnowledgeRoomDatabase.getDatabase(application).directionDao()
         directionsRepository = DirectionsRepository(directionDao)
         allDirections = directionsRepository.allDirections
     }

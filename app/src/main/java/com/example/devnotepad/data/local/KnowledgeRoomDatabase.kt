@@ -4,23 +4,30 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.devnotepad.Article
-import com.example.devnotepad.DirectionOfStudy
-import com.example.devnotepad.Topic
+import com.example.devnotepad.*
 
-@Database(entities = [Article::class, Topic::class, DirectionOfStudy::class], version = 1)
-abstract class ArticleRoomDatabase : RoomDatabase() {
+@Database(
+    entities = [
+        DirectionOfStudy::class,
+        Topic::class,
+        Article::class,
+        ArticleHeader::class,
+        ArticleParagraph::class
+    ], version = 2
+)
+abstract class KnowledgeRoomDatabase : RoomDatabase() {
 
-    abstract fun articleDao(): ArticleDao
-    abstract fun topicDao(): TopicDao
     abstract fun directionDao(): DirectionDao
+    abstract fun topicDao(): TopicDao
+    abstract fun articleDao(): ArticleDao
+    abstract fun articleContentDao(): ArticleContentDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the same time.
         @Volatile
-        private var INSTANCE: ArticleRoomDatabase? = null
+        private var INSTANCE: KnowledgeRoomDatabase? = null
 
-        fun getDatabase(context: Context): ArticleRoomDatabase {
+        fun getDatabase(context: Context): KnowledgeRoomDatabase {
             val tempInstance = INSTANCE
             if (tempInstance != null) {
                 return tempInstance
@@ -29,7 +36,7 @@ abstract class ArticleRoomDatabase : RoomDatabase() {
             synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    ArticleRoomDatabase::class.java,
+                    KnowledgeRoomDatabase::class.java,
                     "article_database"
                 ).fallbackToDestructiveMigration()
                     .build()

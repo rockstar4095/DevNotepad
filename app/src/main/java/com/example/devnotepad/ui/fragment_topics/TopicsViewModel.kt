@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.devnotepad.Topic
 import com.example.devnotepad.data.TopicsRepository
-import com.example.devnotepad.data.local.ArticleRoomDatabase
+import com.example.devnotepad.data.local.KnowledgeRoomDatabase
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +26,7 @@ class TopicsViewModel(application: Application) : AndroidViewModel(application) 
         val retrofitInstance = RetrofitCreator.getRetrofit()
         api = retrofitInstance.create(DevNotepadApi::class.java)
 
-        val topicDao = ArticleRoomDatabase.getDatabase(application).topicDao()
+        val topicDao = KnowledgeRoomDatabase.getDatabase(application).topicDao()
         topicsRepository = TopicsRepository(topicDao)
         allTopics = topicsRepository.allTopics
     }
