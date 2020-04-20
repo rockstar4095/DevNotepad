@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.DirectionOfStudy
@@ -27,9 +28,20 @@ class DirectionsAdapter internal constructor(
     override fun getItemCount() = directions.size
 
     override fun onBindViewHolder(holder: DirectionsViewHolder, position: Int) {
-        val current = directions[position]
-        holder.directionItemView.text = current.name
-        holder.bind(current, onDirectionClickListener)
+        val currentItem = directions[position]
+        holder.txtDirection.text = currentItem.name
+
+        setDirectionLogo(currentItem, holder)
+
+        holder.bind(currentItem, onDirectionClickListener)
+    }
+
+    private fun setDirectionLogo(currentItem: DirectionOfStudy, holder: DirectionsViewHolder) {
+        when(currentItem.idFromServer) {
+            6 -> holder.imgDirection.setImageResource(R.mipmap.android_logo)
+            2 -> holder.imgDirection.setImageResource(R.mipmap.java_logo)
+            3 -> holder.imgDirection.setImageResource(R.mipmap.kotlin_logo)
+        }
     }
 
     internal fun setDirections(directions: List<DirectionOfStudy>) {
@@ -39,7 +51,8 @@ class DirectionsAdapter internal constructor(
 
     inner class DirectionsViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        val directionItemView: TextView = itemView.textView
+        val txtDirection: TextView = itemView.txtDirection
+        val imgDirection: ImageView = itemView.imgDirection
 
         fun bind(
             directionOfStudy: DirectionOfStudy,

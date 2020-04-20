@@ -8,12 +8,11 @@ import android.view.ViewGroup
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.devnotepad.Article
-import com.example.devnotepad.ArticleHeader
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.devnotepad.*
 
-import com.example.devnotepad.R
 import com.example.devnotepad.ui.fragment_articles.ArticlesFragment
-import kotlinx.android.synthetic.main.article_content_fragment.view.*
 
 class ArticleContentFragment : Fragment() {
 
@@ -22,8 +21,14 @@ class ArticleContentFragment : Fragment() {
     }
 
     private lateinit var viewModel: ArticleContentViewModel
+    private lateinit var adapter: ArticleContentAdapter
     private lateinit var gottenArticle: Article
-    private val articlePieces: MediatorLiveData<List<Any>> = MediatorLiveData()
+    private lateinit var recyclerView: RecyclerView
+
+    /**
+     * Переменные для наблюдения и объединения разного вида контента.
+     * */
+    private var articleContentMediator = MediatorLiveData<List<Any>>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,47 +37,71 @@ class ArticleContentFragment : Fragment() {
     ): View? {
         gottenArticle = arguments!!.getParcelable(ArticlesFragment.articleKey)!!
 
-        val v: View = inflater.inflate(R.layout.article_content_fragment, container, false)
-        v.txtArticleContent.text = gottenArticle.text
+        val view: View = inflater.inflate(R.layout.article_content_fragment, container, false)
+        recyclerView = view.findViewById(R.id.articlePiecesRecyclerView)
 
-        var i = 0;
-        v.button.setOnClickListener(View.OnClickListener {
-            viewModel.insertHeader(ArticleHeader(i, i, "attempt $i"))
-            i++
-        })
-
-        return v
+        return view
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val myViewModelFactory = MyViewModelFactory(activity!!.application, gottenArticle)
-        viewModel = ViewModelProvider(this, myViewModelFactory).get(ArticleContentViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(ArticleContentViewModel::class.java)
+        adapter = ArticleContentAdapter(requireContext())
 
-        viewModel.makeRequestForContent()
-        viewModel.allArticleHeaders.observe(viewLifecycleOwner, Observer {
-            println("debug: size: ${it.size}")
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        // Запрос на сервер содержимого данной статьи.
+        viewModel.makeRequestForContent(gottenArticle.idFromServer)
+
+        addSourcesToMediator()
+        observeMediator()
+    }
+
+    /**
+     * Добавляет в медиатор источники данных - элементы статьи.
+     * Данные фильтруются из списка всех элементов по id статьи.
+     * */
+    private fun addSourcesToMediator() {
+        articleContentMediator.addSource(viewModel.allArticlesHeaders, Observer { allHeaders ->
+            val filteredHeaders = ArrayList<ArticleHeader>()
+            for (header in allHeaders) {
+                if (header.articleIdFromServer == gottenArticle.idFromServer) {
+                    filteredHeaders.add(header)
+                }
+            }
+            articleContentMediator.value = filteredHeaders
         })
 
-//        articlePieces.addSource(viewModel.allArticleHeaders, Observer {
-//            articlePieces.value = it
-//            for (any in it){
-//                println("debug: $any")
-//            }
-//        })
-//
-//        articlePieces.addSource(viewModel.allArticleParagraphs, Observer {
-//            articlePieces.value = it
-//            for (any in it){
-//                println("debug: $any")
-//            }
-//        })
-//
-//        articlePieces.observe(viewLifecycleOwner, Observer {
-//            for (any in it){
-//                println("debug: $any")
-//            }
-//        })
+        articleContentMediator.addSource(viewModel.allArticlesParagraphs, Observer { allParagraphs ->
+            val filteredParagraphs = ArrayList<ArticleParagraph>()
+            for (paragraph in allParagraphs) {
+                if (paragraph.articleIdFromServer == gottenArticle.idFromServer) {
+                    filteredParagraphs.add(paragraph)
+                }
+            }
+            articleContentMediator.value = filteredParagraphs
+        })
+    }
+
+    /**
+     * Устанавливает наблюдатель за медиатором.
+     * */
+    private fun observeMediator() {
+        articleContentMediator.observe(viewLifecycleOwner, Observer { articlePieces ->
+            val filteredPieces = ArrayList<ArticlePiece>()
+
+            if(articlePieces.isNotEmpty()) {
+                for (piece in articlePieces) {
+                    if (piece is ArticlePiece) {
+                        filteredPieces.add(piece)
+                    }
+                }
+
+            }
+            val piecesSortedByPosition = filteredPieces.sortedBy { piece -> piece.positionInArticle }
+            adapter.addArticlePieces(piecesSortedByPosition)
+        })
     }
 }

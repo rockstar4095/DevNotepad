@@ -17,13 +17,13 @@ interface DevNotepadApi {
     fun getArticles(): Call<List<Article>>
 
     /**
-     * By article id.
+     * Запрашивает у сервера содержимое статьи, используя ее id как условие фильтра.
      * */
     @GET("get-article-headers.php")
     fun getArticleHeaders(@Query("articleId") articleId: Int): Call<List<ArticleHeader>>
 
     /**
-     * By article id.
+     * Запрашивает у сервера содержимое статьи, используя ее id как условие фильтра.
      * */
     @GET("get-article-paragraphs.php")
     fun getArticleParagraphs(@Query("articleId") articleId: Int): Call<List<ArticleParagraph>>

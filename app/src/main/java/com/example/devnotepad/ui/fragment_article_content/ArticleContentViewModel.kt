@@ -3,9 +3,7 @@ package com.example.devnotepad.ui.fragment_article_content
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.devnotepad.Article
 import com.example.devnotepad.ArticleHeader
 import com.example.devnotepad.ArticleParagraph
 import com.example.devnotepad.data.ArticlesContentRepository
@@ -16,35 +14,40 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ArticleContentViewModel(
-    application: Application,
-    internal val article: Article
+    application: Application
 ) : AndroidViewModel(application) {
     internal val articlesContentRepository: ArticlesContentRepository
-    val allArticleHeaders: LiveData<List<ArticleHeader>>
-    val allArticleParagraphs: LiveData<List<ArticleParagraph>>
-    internal val api: DevNotepadApi
+    val allArticlesHeaders: LiveData<List<ArticleHeader>>
+    val allArticlesParagraphs: LiveData<List<ArticleParagraph>>
+
+    /**
+     * Классы для обработки элементов статьи. В них происходит запрос на сервер и работа с БД.
+     * Созданы для того, чтобы не писать весь код в данном классе.
+     * */
     private val headersPart: HeadersPart
     private val paragraphsPart: ParagraphsPart
-    private var contentPieces: MutableLiveData<ArrayList<Any>>
 
     init {
 
         val retrofitInstance = RetrofitCreator.getRetrofit()
-        api = retrofitInstance.create(DevNotepadApi::class.java)
+        val api = retrofitInstance.create(DevNotepadApi::class.java)
 
         val articleContentDao = KnowledgeRoomDatabase.getDatabase(application).articleContentDao()
 
         articlesContentRepository =
-            ArticlesContentRepository(articleContentDao, article.idFromServer)
+            ArticlesContentRepository(articleContentDao)
 
-        allArticleHeaders = articlesContentRepository.allArticleHeaders
-        allArticleParagraphs = articlesContentRepository.allArticleParagraphs
+        allArticlesHeaders = articlesContentRepository.allArticleHeaders
+        allArticlesParagraphs = articlesContentRepository.allArticleParagraphs
 
-        headersPart = HeadersPart(this)
-        paragraphsPart = ParagraphsPart(this)
-        contentPieces = MutableLiveData()
+        headersPart = HeadersPart(this, api)
+        paragraphsPart = ParagraphsPart(this, api)
     }
 
+    /**
+     * Методы вставки и удаления находятся в данном классе по причине того, что здесь есть
+     * доступ к viewModelScope.
+     * */
     internal fun insertHeader(articleHeader: ArticleHeader) {
         viewModelScope.launch(Dispatchers.IO) {
             articlesContentRepository.insertArticleHeader(articleHeader)
@@ -69,8 +72,11 @@ class ArticleContentViewModel(
         }
     }
 
-    fun makeRequestForContent() {
-        headersPart.makeRequestForHeaders()
-        paragraphsPart.makeRequestForParagraphs()
+    /**
+     * Вызывает методы для запроса на сервер у всех классов-обработчиков элементов статьи.
+     * */
+    fun makeRequestForContent(articleId: Int) {
+        headersPart.makeRequestForHeaders(articleId)
+        paragraphsPart.makeRequestForParagraphs(articleId)
     }
 }

@@ -1,20 +1,29 @@
 package com.example.devnotepad.ui.fragment_article_content
 
 import com.example.devnotepad.ArticleParagraph
+import com.example.devnotepad.data.rest.DevNotepadApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.properties.Delegates
 
-class ParagraphsPart(private val articleContentViewModel: ArticleContentViewModel) {
+class ParagraphsPart(
+    private val articleContentViewModel: ArticleContentViewModel,
+    private val api: DevNotepadApi
+) {
+
+    private var articleId by Delegates.notNull<Int>()
 
     /**
      * Осуществляет запрос на сервер для получения направлений.
      * */
-    fun makeRequestForParagraphs() {
-        articleContentViewModel.api.getArticleParagraphs(articleContentViewModel.article.idFromServer)
+    fun makeRequestForParagraphs(articleId: Int) {
+        this.articleId = articleId
+
+        api.getArticleParagraphs(articleId)
             .enqueue(object : Callback<List<ArticleParagraph>> {
                 override fun onResponse(
                     call: Call<List<ArticleParagraph>>,
@@ -32,7 +41,7 @@ class ParagraphsPart(private val articleContentViewModel: ArticleContentViewMode
     }
 
     /**
-     * Обрабатывает направления, полученные от сервера, с направлениями, хранящимися в локальной БД.
+     * Обрабатывает параграфы, полученные от сервера.
      * */
     private suspend fun handleServerParagraphs(paragraphsFromServer: List<ArticleParagraph>) {
 
@@ -49,14 +58,14 @@ class ParagraphsPart(private val articleContentViewModel: ArticleContentViewMode
     }
 
     /**
-     * Проверяет таблицу с направлениями на наличие данных.
+     * Проверяет таблицу с параграфами для статьи с articleId на наличие данных.
      * */
     private suspend fun isParagraphsTableEmpty(): Boolean {
-        return articleContentViewModel.articlesContentRepository.getArticleParagraphsSync().isEmpty()
+        return articleContentViewModel.articlesContentRepository.getArticleParagraphsSync(articleId).isEmpty()
     }
 
     /**
-     * Вставляет список направлений в таблицу.
+     * Вставляет список параграфов в таблицу.
      * */
     private fun insertParagraphs(paragraphs: List<ArticleParagraph>) {
         for (paragraph in paragraphs) {
@@ -65,7 +74,8 @@ class ParagraphsPart(private val articleContentViewModel: ArticleContentViewMode
     }
 
     /**
-     * Сравнивает направления с сервера с локальными и вызывает методы вставки/обновления/удаления.
+     * Сравнивает параграфы с сервера с локальными и вызывает методы вставки/обновления/удаления.
+     * В локальной БД ищет только заголовки для конкретной статьи по ее id.
      * */
     private suspend fun matchParagraphsFromServerAndLocal(paragraphsFromServer: List<ArticleParagraph>) {
 
@@ -76,7 +86,7 @@ class ParagraphsPart(private val articleContentViewModel: ArticleContentViewMode
             serverParagraphsHashMap[paragraph.idFromServer] = paragraph
         }
 
-        for (paragraph in articleContentViewModel.articlesContentRepository.getArticleParagraphsSync()) {
+        for (paragraph in articleContentViewModel.articlesContentRepository.getArticleParagraphsSync(articleId)) {
             localParagraphsHashMap[paragraph.idFromServer] = paragraph
         }
 
@@ -86,7 +96,7 @@ class ParagraphsPart(private val articleContentViewModel: ArticleContentViewMode
     }
 
     /**
-     * Вставляет новые направления в локальную БД.
+     * Вставляет новые параграфы в локальную БД.
      * */
     private fun insertNewParagraphs(
         serverParagraphsHashMap: HashMap<Int, ArticleParagraph>,
@@ -100,21 +110,21 @@ class ParagraphsPart(private val articleContentViewModel: ArticleContentViewMode
     }
 
     /**
-     * Обновляет направления в локальной БД, в случае, если у них изменились данные.
+     * Обновляет параграфы в локальной БД, в случае, если у них изменились данные.
      * */
     private fun replaceRenewedParagraphs(
         serverParagraphsHashMap: HashMap<Int, ArticleParagraph>,
         localParagraphsHashMap: HashMap<Int, ArticleParagraph>
     ) {
         for ((id, paragraph) in serverParagraphsHashMap) {
-            if (localParagraphsHashMap.containsKey(id) && paragraph.paragraph != localParagraphsHashMap[id]!!.paragraph) {
+            if (localParagraphsHashMap.containsKey(id) && paragraph != localParagraphsHashMap[id]!!) {
                 articleContentViewModel.insertParagraph(paragraph)
             }
         }
     }
 
     /**
-     * Удаляет направления из БД, в случае, если их больше нет на сервере.
+     * Удаляет параграфы из БД, в случае, если их больше нет на сервере.
      * */
     private fun deleteAbsentParagraphs(
         serverParagraphsHashMap: HashMap<Int, ArticleParagraph>,

@@ -39,7 +39,7 @@ class ArticlesAdapter internal constructor(
 
     inner class ArticlesViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        val articleItemView: TextView = itemView.textView
+        val articleItemView: TextView = itemView.txtArticle
 
         fun bind(
             article: Article,

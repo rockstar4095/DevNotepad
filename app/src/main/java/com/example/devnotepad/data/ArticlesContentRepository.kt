@@ -9,19 +9,17 @@ import com.example.devnotepad.data.local.ArticleContentDao
  * Репозиторий обрабатывает запросы к содержимому статей.
  * */
 class ArticlesContentRepository(
-    private val articleContentDao: ArticleContentDao,
-    private val articleIdFromServer: Int
+    private val articleContentDao: ArticleContentDao
 ) {
 
     val allArticleHeaders: LiveData<List<ArticleHeader>> =
-        articleContentDao.getArticleHeaders(articleIdFromServer)
+        articleContentDao.getArticleHeaders()
 
-    suspend fun getArticleHeadersSync(): List<ArticleHeader> {
-        return articleContentDao.getArticleHeadersSync(articleIdFromServer)
+    suspend fun getArticleHeadersSync(articleId: Int): List<ArticleHeader> {
+        return articleContentDao.getArticleHeadersSync(articleId)
     }
 
     suspend fun insertArticleHeader(articleHeader: ArticleHeader) {
-        println("debug: repository: ${articleHeader.header}")
         articleContentDao.insertArticleHeader(articleHeader)
     }
 
@@ -31,10 +29,10 @@ class ArticlesContentRepository(
 
 
     val allArticleParagraphs: LiveData<List<ArticleParagraph>> =
-        articleContentDao.getArticleParagraphs(articleIdFromServer)
+        articleContentDao.getArticleParagraphs()
 
-    suspend fun getArticleParagraphsSync(): List<ArticleParagraph> {
-        return articleContentDao.getArticleParagraphsSync(articleIdFromServer)
+    suspend fun getArticleParagraphsSync(articleId: Int): List<ArticleParagraph> {
+        return articleContentDao.getArticleParagraphsSync(articleId)
     }
 
     suspend fun insertArticleParagraph(articleParagraph: ArticleParagraph) {
