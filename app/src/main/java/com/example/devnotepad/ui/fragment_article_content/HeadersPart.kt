@@ -26,17 +26,14 @@ class HeadersPart(
 
         api.getArticleHeaders(articleId)
             .enqueue(object : Callback<List<ArticleHeader>> {
-                override fun onResponse(
-                    call: Call<List<ArticleHeader>>,
-                    response: Response<List<ArticleHeader>>
-                ) {
+                override fun onResponse(call: Call<List<ArticleHeader>>, response: Response<List<ArticleHeader>>) {
                     CoroutineScope(Dispatchers.IO).launch {
                         handleServerHeaders(response.body()!!)
                     }
                 }
 
                 override fun onFailure(call: Call<List<ArticleHeader>>, t: Throwable) {
-                    println("response unsuccessful: $t")
+                    println("debug: response unsuccessful: $t")
                 }
             })
     }
@@ -103,8 +100,8 @@ class HeadersPart(
         serverHeadersHashMap: HashMap<Int, ArticleHeader>,
         localHeadersHashMap: HashMap<Int, ArticleHeader>
     ) {
-        for ((id, header) in serverHeadersHashMap) {
-            if (!localHeadersHashMap.containsKey(id)) {
+        for ((idFromServer, header) in serverHeadersHashMap) {
+            if (!localHeadersHashMap.containsKey(idFromServer)) {
                 articleContentViewModel.insertHeader(header)
             }
         }
@@ -117,8 +114,9 @@ class HeadersPart(
         serverHeadersHashMap: HashMap<Int, ArticleHeader>,
         localHeadersHashMap: HashMap<Int, ArticleHeader>
     ) {
-        for ((id, header) in serverHeadersHashMap) {
-            if (localHeadersHashMap.containsKey(id) && header != localHeadersHashMap[id]!!) {
+        for ((idFromServer, header) in serverHeadersHashMap) {
+            if (localHeadersHashMap.containsKey(idFromServer) &&
+                header.timeWhenDataChanged != localHeadersHashMap[idFromServer]!!.timeWhenDataChanged) {
                 articleContentViewModel.insertHeader(header)
             }
         }
@@ -131,8 +129,8 @@ class HeadersPart(
         serverHeadersHashMap: HashMap<Int, ArticleHeader>,
         localHeadersHashMap: HashMap<Int, ArticleHeader>
     ) {
-        for ((id, header) in localHeadersHashMap) {
-            if (!serverHeadersHashMap.containsKey(id)) {
+        for ((idFromServer, header) in localHeadersHashMap) {
+            if (!serverHeadersHashMap.containsKey(idFromServer)) {
                 articleContentViewModel.deleteHeader(header)
             }
         }

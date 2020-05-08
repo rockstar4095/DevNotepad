@@ -19,6 +19,7 @@ class ParagraphsPart(
 
     /**
      * Осуществляет запрос на сервер для получения направлений.
+     * Запрашивает данные для конкретной статьи, используя ее id.
      * */
     fun makeRequestForParagraphs(articleId: Int) {
         this.articleId = articleId
@@ -117,7 +118,8 @@ class ParagraphsPart(
         localParagraphsHashMap: HashMap<Int, ArticleParagraph>
     ) {
         for ((id, paragraph) in serverParagraphsHashMap) {
-            if (localParagraphsHashMap.containsKey(id) && paragraph != localParagraphsHashMap[id]!!) {
+            if (localParagraphsHashMap.containsKey(id)
+                && paragraph.timeWhenDataChanged != localParagraphsHashMap[id]!!.timeWhenDataChanged) {
                 articleContentViewModel.insertParagraph(paragraph)
             }
         }

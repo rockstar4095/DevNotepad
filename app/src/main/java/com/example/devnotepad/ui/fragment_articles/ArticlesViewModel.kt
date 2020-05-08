@@ -134,7 +134,8 @@ class ArticlesViewModel(application: Application) : AndroidViewModel(application
         localArticlesHashMap: HashMap<Int, Article>
     ) {
         for ((id, article) in serverArticlesHashMap) {
-            if (localArticlesHashMap.containsKey(id) && article.name != localArticlesHashMap[id]!!.name) {
+            if (localArticlesHashMap.containsKey(id)
+                && article.timeWhenDataChanged != localArticlesHashMap[id]!!.timeWhenDataChanged) {
                 insertArticle(article)
             }
         }

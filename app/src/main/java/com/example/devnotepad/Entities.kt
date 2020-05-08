@@ -7,8 +7,17 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 /**
- * TODO: inherit Entities from one parent, to implement one OnItemClickListener.
+ * TODO: inherit navigation Entities from one parent, to implement one OnItemClickListener.
  * */
+
+/**
+ * Интерфейс, объединяющий сущности с данными. Содержит в себе общее для всех сущностей поле -
+ * время того, когда изменились данные. В это поле записывается время изменения данных в БД
+ * сервера. Оно используется для сравнения в качестве условия необходимости обновления данных.
+ * */
+interface NotepadData {
+    val timeWhenDataChanged: Long
+}
 
 /**
  * Направление для изучения, например: Java, Kotlin, Android и т.д..
@@ -18,8 +27,10 @@ class DirectionOfStudy(
     @PrimaryKey
     @SerializedName("id")
     val idFromServer: Int,
-    val name: String
-)
+    val name: String,
+    @SerializedName("time_when_data_changed")
+    override val timeWhenDataChanged: Long
+) : NotepadData
 
 /**
  * Тема для изучения, например: SOLID, OOP и т.д.
@@ -29,11 +40,14 @@ class Topic(
     @PrimaryKey
     @SerializedName("id")
     val idFromServer: Int,
-    val directionOfStudy: String,
+    @SerializedName("direction_id")
+    val directionIdFromServer: Int,
     val name: String,
     val views: Int,
-    val progress: Int
-)
+    val progress: Int,
+    @SerializedName("time_when_data_changed")
+    override val timeWhenDataChanged: Long
+) : NotepadData
 
 /**
  * Отдельная мини-статья с краткой информацией о предмете, например: Inheritance, Encapsulation и т.д.
@@ -51,30 +65,30 @@ class Article(
     @PrimaryKey
     @SerializedName("id")
     val idFromServer: Int,
-    val topic: String,
+    @SerializedName("topic_id")
+    val topicIdFromServer: Int,
     val version: Int,
     val name: String,
-    /**TODO: remove everywhere.*/
-    val text: String,
     val views: Int,
-    val isDifficult: Boolean
-) : Parcelable {
+    val isDifficult: Boolean,
+    @SerializedName("time_when_data_changed")
+    override val timeWhenDataChanged: Long
+) : NotepadData, Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
-        parcel.readString()!!,
+        parcel.readInt(),
         parcel.readInt(),
         parcel.readString()!!,
-        parcel.readString()!!,
         parcel.readInt(),
-        parcel.readByte() != 0.toByte()
+        parcel.readByte() != 0.toByte(),
+        parcel.readLong()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(idFromServer)
-        parcel.writeString(topic)
+        parcel.writeInt(topicIdFromServer)
         parcel.writeInt(version)
         parcel.writeString(name)
-        parcel.writeString(text)
         parcel.writeInt(views)
         parcel.writeByte(if (isDifficult) 1 else 0)
     }
@@ -98,17 +112,17 @@ class Article(
  * Объединяет сущности, которые созданы для отображения содержимого статей.
  * Объявляет общие поля и классы для работы с сущностями.
  * */
-abstract class ArticlePiece {
+interface ArticlePiece {
     /**
      * Хранит номер позиции данного элемента в статье. Используется для последовательного
      * отображения содержимого.
      * */
-    abstract val positionInArticle: Int
+    val positionInArticle: Int
 
     /**
      * Метод возвращает содержимое элемента стати для установки в item recyclerView.
      * */
-    abstract fun getContentOfPiece(): String
+    fun getContentOfPiece(): String
 }
 
 /**
@@ -120,29 +134,14 @@ class ArticleHeader(
     @PrimaryKey
     @SerializedName("id")
     val idFromServer: Int,
-    @SerializedName("articleId")
+    @SerializedName("article_id")
     val articleIdFromServer: Int,
+    @SerializedName("position_in_article")
     override val positionInArticle: Int,
-    val header: String
-) : ArticlePiece() {
-
-    override fun equals(other: Any?): Boolean {
-
-        if (other !is ArticleHeader) return false
-
-        if (other.hashCode() != this.hashCode()) return false
-
-        return other.header == this.header &&
-                other.positionInArticle == this.positionInArticle
-    }
-
-    override fun hashCode(): Int {
-        var result = idFromServer
-        result = 31 * result + articleIdFromServer
-        result = 31 * result + positionInArticle
-        result = 31 * result + header.hashCode()
-        return result
-    }
+    val header: String,
+    @SerializedName("time_when_data_changed")
+    override val timeWhenDataChanged: Long
+) : NotepadData, ArticlePiece {
 
     override fun toString(): String {
         return "idFromServer: ${this.idFromServer}\n" +
@@ -165,29 +164,14 @@ class ArticleParagraph(
     @PrimaryKey
     @SerializedName("id")
     val idFromServer: Int,
-    @SerializedName("articleId")
+    @SerializedName("article_id")
     val articleIdFromServer: Int,
+    @SerializedName("position_in_article")
     override val positionInArticle: Int,
-    val paragraph: String
-) : ArticlePiece() {
-
-    override fun equals(other: Any?): Boolean {
-
-        if (other !is ArticleParagraph) return false
-
-        if (other.hashCode() != this.hashCode()) return false
-
-        return other.paragraph == this.paragraph &&
-                other.positionInArticle == this.positionInArticle
-    }
-
-    override fun hashCode(): Int {
-        var result = idFromServer
-        result = 31 * result + articleIdFromServer
-        result = 31 * result + positionInArticle
-        result = 31 * result + paragraph.hashCode()
-        return result
-    }
+    val paragraph: String,
+    @SerializedName("time_when_data_changed")
+    override val timeWhenDataChanged: Long
+) : NotepadData, ArticlePiece {
 
     override fun getContentOfPiece(): String {
         return this.paragraph

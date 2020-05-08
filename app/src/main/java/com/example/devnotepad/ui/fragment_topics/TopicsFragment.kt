@@ -25,14 +25,14 @@ class TopicsFragment : Fragment(),
     }
 
     private lateinit var viewModel: TopicsViewModel
-    private lateinit var gottenDirectionName: String
+    private var gottenDirectionId: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        gottenDirectionName = arguments!!.getString(DirectionsFragment.directionKey)!!
+        gottenDirectionId = arguments!!.getInt(DirectionsFragment.directionKey)
 
         return inflater.inflate(R.layout.topics_fragment, container, false)
     }
@@ -59,7 +59,7 @@ class TopicsFragment : Fragment(),
         val sortedTopics: ArrayList<Topic> = ArrayList()
 
         for (topic in topics) {
-            if (topic.directionOfStudy == gottenDirectionName) {
+            if (topic.directionIdFromServer == gottenDirectionId) {
                 sortedTopics.add(topic)
             }
         }
@@ -71,7 +71,7 @@ class TopicsFragment : Fragment(),
         val articlesFragment: Fragment = ArticlesFragment()
 
         val bundle = Bundle()
-        bundle.putString(topicKey, topic.name)
+        bundle.putInt(topicKey, topic.idFromServer)
         articlesFragment.arguments = bundle
 
         activity?.supportFragmentManager?.beginTransaction()

@@ -134,7 +134,8 @@ class DirectionsViewModel(application: Application) : AndroidViewModel(applicati
         localDirectionsHashMap: HashMap<Int, DirectionOfStudy>
     ) {
         for ((id, direction) in serverDirectionsHashMap) {
-            if (localDirectionsHashMap.containsKey(id) && direction.name != localDirectionsHashMap[id]!!.name) {
+            if (localDirectionsHashMap.containsKey(id)
+                && direction.timeWhenDataChanged != localDirectionsHashMap[id]!!.timeWhenDataChanged) {
                 insertDirection(direction)
             }
         }

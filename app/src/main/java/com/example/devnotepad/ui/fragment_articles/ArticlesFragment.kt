@@ -25,14 +25,14 @@ class ArticlesFragment : Fragment(),
     }
 
     private lateinit var viewModel: ArticlesViewModel
-    private lateinit var gottenTopicName: String
+    private var gottenTopicId: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        gottenTopicName = arguments!!.getString(TopicsFragment.topicKey)!!
+        gottenTopicId = arguments!!.getInt(TopicsFragment.topicKey)
 
         return inflater.inflate(R.layout.articles_fragment, container, false)
     }
@@ -61,7 +61,7 @@ class ArticlesFragment : Fragment(),
         val sortedArticles: ArrayList<Article> = ArrayList()
 
         for (article in articles) {
-            if (article.topic == gottenTopicName) {
+            if (article.topicIdFromServer == gottenTopicId) {
                 sortedArticles.add(article)
             }
         }

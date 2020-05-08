@@ -13,7 +13,7 @@ import com.example.devnotepad.*
         Article::class,
         ArticleHeader::class,
         ArticleParagraph::class
-    ], version = 2
+    ], version = 3
 )
 abstract class KnowledgeRoomDatabase : RoomDatabase() {
 

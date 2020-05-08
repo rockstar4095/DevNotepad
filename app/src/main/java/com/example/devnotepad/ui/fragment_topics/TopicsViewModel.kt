@@ -134,7 +134,8 @@ class TopicsViewModel(application: Application) : AndroidViewModel(application) 
         localTopicsHashMap: HashMap<Int, Topic>
     ) {
         for ((id, topic) in serverTopicsHashMap) {
-            if (localTopicsHashMap.containsKey(id) && topic.name != localTopicsHashMap[id]!!.name) {
+            if (localTopicsHashMap.containsKey(id)
+                && topic.timeWhenDataChanged != localTopicsHashMap[id]!!.timeWhenDataChanged) {
                 insertTopic(topic)
             }
         }

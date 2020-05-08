@@ -54,7 +54,7 @@ class DirectionsFragment : Fragment(),
         val topicsFragment: Fragment = TopicsFragment()
 
         val bundle = Bundle()
-        bundle.putString(directionKey, directionOfStudy.name)
+        bundle.putInt(directionKey, directionOfStudy.idFromServer)
         topicsFragment.arguments = bundle
 
         activity?.supportFragmentManager?.beginTransaction()

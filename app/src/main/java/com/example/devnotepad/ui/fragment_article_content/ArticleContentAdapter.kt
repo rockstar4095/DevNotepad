@@ -84,7 +84,7 @@ class ArticleContentAdapter(
         private val articleHeader: TextView = itemView.header
 
         override fun bind(item: ArticleHeader) {
-            articleHeader.text = item.header
+            articleHeader.text = item.getContentOfPiece()
         }
     }
 
@@ -93,7 +93,8 @@ class ArticleContentAdapter(
         private val articleParagraph: TextView = itemView.paragraph
 
         override fun bind(item: ArticleParagraph) {
-            articleParagraph.text = item.paragraph
+            val text = "\t ${item.getContentOfPiece()}"
+            articleParagraph.text = text
         }
     }
 
