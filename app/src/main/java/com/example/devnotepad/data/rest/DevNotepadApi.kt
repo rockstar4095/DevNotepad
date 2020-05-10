@@ -28,11 +28,14 @@ interface DevNotepadApi {
     @GET("devnotepad/api/get-article-paragraphs.php")
     fun getArticleParagraphs(@Query("articleId") articleId: Int): Call<List<ArticleParagraph>>
 
-    /** Test
-    @GET("devnotepad/api/get-notepad-elements.php")
-    fun getNotepadData(
-        @Query("elementType") elementType: String,
-        @Query("elementId") elementId: Int
-    ): Call<List<NotepadData>>
-    */
+//    @GET("devnotepad/api/get-notepad-elements.php")
+//    fun getNotepadData(
+//        @Query("elementType") elementType: String,
+//        @Query("elementId") elementId: Int
+//    ): Call<List<NotepadData>>
+//
+//    @GET("devnotepad/api/get-notepad-elements.php")
+//    fun getNotepadData(
+//        @Query("elementType") elementType: String
+//    ): Call<List<NotepadData>>
 }

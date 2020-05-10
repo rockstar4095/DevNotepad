@@ -48,7 +48,7 @@ class ArticlesFragment : Fragment(),
         articlesRecyclerView.adapter = adapter
         articlesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        viewModel.makeRequestForArticles()
+        viewModel.makeRequestForElements()
         viewModel.allArticles.observe(viewLifecycleOwner, Observer { articles ->
             articles?.let { adapter.setArticles(sortArticlesByTopic(it)) }
         })

@@ -17,6 +17,7 @@ import com.google.gson.annotations.SerializedName
  * */
 interface NotepadData {
     val timeWhenDataChanged: Long
+    val idFromServer: Int
 }
 
 /**
@@ -26,7 +27,7 @@ interface NotepadData {
 class DirectionOfStudy(
     @PrimaryKey
     @SerializedName("id")
-    val idFromServer: Int,
+    override val idFromServer: Int,
     val name: String,
     @SerializedName("time_when_data_changed")
     override val timeWhenDataChanged: Long
@@ -39,7 +40,7 @@ class DirectionOfStudy(
 class Topic(
     @PrimaryKey
     @SerializedName("id")
-    val idFromServer: Int,
+    override val idFromServer: Int,
     @SerializedName("direction_id")
     val directionIdFromServer: Int,
     val name: String,
@@ -64,7 +65,7 @@ class Topic(
 class Article(
     @PrimaryKey
     @SerializedName("id")
-    val idFromServer: Int,
+    override val idFromServer: Int,
     @SerializedName("topic_id")
     val topicIdFromServer: Int,
     val version: Int,
@@ -133,7 +134,7 @@ interface ArticlePiece {
 class ArticleHeader(
     @PrimaryKey
     @SerializedName("id")
-    val idFromServer: Int,
+    override val idFromServer: Int,
     @SerializedName("article_id")
     val articleIdFromServer: Int,
     @SerializedName("position_in_article")
@@ -163,7 +164,7 @@ class ArticleHeader(
 class ArticleParagraph(
     @PrimaryKey
     @SerializedName("id")
-    val idFromServer: Int,
+    override val idFromServer: Int,
     @SerializedName("article_id")
     val articleIdFromServer: Int,
     @SerializedName("position_in_article")

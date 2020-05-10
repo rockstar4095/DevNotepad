@@ -44,7 +44,7 @@ class DirectionsFragment : Fragment(),
         directionsRecyclerView.adapter = adapter
         directionsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        viewModel.makeRequestForDirections()
+        viewModel.makeRequestForElements()
         viewModel.allDirections.observe(viewLifecycleOwner, Observer { directions ->
             directions?.let { adapter.setDirections(it) }
         })

@@ -20,7 +20,8 @@ class ArticleContentFragment : Fragment() {
         fun newInstance() = ArticleContentFragment()
     }
 
-    private lateinit var viewModel: ArticleContentViewModel
+    private lateinit var viewModelForHeadersForHeaders: ArticleContentViewModelForHeaders
+    private lateinit var viewModelForHeadersForParagraphs: ArticleContentViewModelForParagraphs
     private lateinit var adapter: ArticleContentAdapter
     private lateinit var gottenArticle: Article
     private lateinit var recyclerView: RecyclerView
@@ -46,14 +47,16 @@ class ArticleContentFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel = ViewModelProvider(this).get(ArticleContentViewModel::class.java)
+        viewModelForHeadersForHeaders = ViewModelProvider(this).get(ArticleContentViewModelForHeaders::class.java)
+        viewModelForHeadersForParagraphs = ViewModelProvider(this).get(ArticleContentViewModelForParagraphs::class.java)
         adapter = ArticleContentAdapter(requireContext())
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Запрос на сервер содержимого данной статьи.
-        viewModel.makeRequestForContent(gottenArticle.idFromServer)
+        viewModelForHeadersForHeaders.makeRequestForElements(gottenArticle.idFromServer)
+        viewModelForHeadersForParagraphs.makeRequestForElements(gottenArticle.idFromServer)
 
         addSourcesToMediator()
         observeMediator()
@@ -64,7 +67,7 @@ class ArticleContentFragment : Fragment() {
      * Данные фильтруются из списка всех элементов по id статьи.
      * */
     private fun addSourcesToMediator() {
-        articleContentMediator.addSource(viewModel.allArticlesHeaders, Observer { allHeaders ->
+        articleContentMediator.addSource(viewModelForHeadersForHeaders.allArticlesHeaders, Observer { allHeaders ->
             val filteredHeaders = ArrayList<ArticleHeader>()
             for (header in allHeaders) {
                 if (header.articleIdFromServer == gottenArticle.idFromServer) {
@@ -74,7 +77,7 @@ class ArticleContentFragment : Fragment() {
             articleContentMediator.value = filteredHeaders
         })
 
-        articleContentMediator.addSource(viewModel.allArticlesParagraphs, Observer { allParagraphs ->
+        articleContentMediator.addSource(viewModelForHeadersForParagraphs.allArticlesParagraphs, Observer { allParagraphs ->
             val filteredParagraphs = ArrayList<ArticleParagraph>()
             for (paragraph in allParagraphs) {
                 if (paragraph.articleIdFromServer == gottenArticle.idFromServer) {
