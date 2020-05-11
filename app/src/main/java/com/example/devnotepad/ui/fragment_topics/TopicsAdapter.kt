@@ -8,11 +8,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.R
 import com.example.devnotepad.Topic
+import com.example.devnotepad.ui.OnItemClickListener
 import kotlinx.android.synthetic.main.topic_item.view.*
 
 class TopicsAdapter internal constructor(
     context: Context,
-    private val onTopicClickListener: OnTopicClickListener
+    private val onItemClickListener: OnItemClickListener
 ) : RecyclerView.Adapter<TopicsAdapter.TopicsViewHolder>() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
@@ -29,7 +30,7 @@ class TopicsAdapter internal constructor(
     override fun onBindViewHolder(holder: TopicsViewHolder, position: Int) {
         val current = topics[position]
         holder.topicItemView.text = current.name
-        holder.bind(current, onTopicClickListener)
+        holder.bind(current, onItemClickListener)
     }
 
     internal fun setTopics(topics: List<Topic>) {
@@ -43,10 +44,10 @@ class TopicsAdapter internal constructor(
 
         fun bind(
             topic: Topic,
-            onTopicClickListener: OnTopicClickListener
+            onItemClickListener: OnItemClickListener
         ) {
             itemView.setOnClickListener {
-                onTopicClickListener.onTopicClick(topic)
+                onItemClickListener.onItemClick(topic)
             }
         }
     }

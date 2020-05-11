@@ -11,8 +11,8 @@ import com.example.devnotepad.data.local.KnowledgeRoomDatabase
 import com.example.devnotepad.data.repositories.RepositoryContractForStructureData
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
-import com.example.devnotepad.ui.NotepadDataHandlerForStructure
-import com.example.devnotepad.ui.NotepadViewModelContractForStructure
+import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForStructure
+import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForStructure
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -32,13 +32,17 @@ class TopicsViewModel(application: Application) : AndroidViewModel(application),
         val topicDao = KnowledgeRoomDatabase.getDatabase(application).topicDao()
         repositoryForStructureData = TopicsRepositoryData(topicDao)
         allTopics = repositoryForStructureData.allTopics
-        notepadDataHandlerForStructure = NotepadDataHandlerForStructure(this, devNotepadApi)
+        notepadDataHandlerForStructure =
+            NotepadDataHandlerForStructure(
+                this,
+                devNotepadApi
+            )
     }
 
     override fun insertElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
             if (notepadData is Topic) {
-                repositoryForStructureData.insertElement(notepadData as Topic)
+                repositoryForStructureData.insertElement(notepadData)
             }
         }
 

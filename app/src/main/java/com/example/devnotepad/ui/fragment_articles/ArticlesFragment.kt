@@ -11,12 +11,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.devnotepad.Article
 
 import com.example.devnotepad.R
+import com.example.devnotepad.StructureData
+import com.example.devnotepad.ui.OnItemClickListener
 import com.example.devnotepad.ui.fragment_article_content.ArticleContentFragment
 import com.example.devnotepad.ui.fragment_topics.TopicsFragment
 import kotlinx.android.synthetic.main.articles_fragment.*
 
 class ArticlesFragment : Fragment(),
-    OnArticleClickListener {
+    OnItemClickListener {
 
     companion object {
         fun newInstance() = ArticlesFragment()
@@ -88,7 +90,7 @@ class ArticlesFragment : Fragment(),
             ?.commit()
     }
 
-    override fun onArticleClick(article: Article) {
-        openArticleContentFragment(article)
+    override fun onItemClick(structureData: StructureData) {
+        openArticleContentFragment(structureData as Article)
     }
 }

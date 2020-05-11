@@ -1,4 +1,4 @@
-package com.example.devnotepad.ui
+package com.example.devnotepad.data.data_handlers
 
 import com.example.devnotepad.*
 import com.example.devnotepad.data.rest.DevNotepadApi
@@ -24,8 +24,7 @@ class NotepadDataHandlerForContent(
         devNotepadApi.getContentData(elementType, parentElementId)
             .enqueue(object : Callback<List<NotepadData>> {
                 override fun onResponse(
-                    call: Call<List<NotepadData>>, response: Response<List<NotepadData>>
-                ) {
+                    call: Call<List<NotepadData>>, response: Response<List<NotepadData>>) {
                     CoroutineScope(Dispatchers.IO).launch {
                         handleServerData(response.body()!!, notepadViewModelForContent)
                     }

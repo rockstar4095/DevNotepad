@@ -1,4 +1,4 @@
-package com.example.devnotepad.ui
+package com.example.devnotepad.data.data_handlers
 
 import com.example.devnotepad.NotepadData
 import kotlinx.coroutines.Job

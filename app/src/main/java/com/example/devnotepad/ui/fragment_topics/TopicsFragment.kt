@@ -10,13 +10,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.example.devnotepad.R
+import com.example.devnotepad.StructureData
 import com.example.devnotepad.Topic
+import com.example.devnotepad.ui.OnItemClickListener
 import com.example.devnotepad.ui.fragment_articles.ArticlesFragment
 import com.example.devnotepad.ui.fragment_directions.DirectionsFragment
 import kotlinx.android.synthetic.main.topics_fragment.*
 
 class TopicsFragment : Fragment(),
-    OnTopicClickListener {
+    OnItemClickListener {
 
     companion object {
         fun newInstance() = TopicsFragment()
@@ -86,7 +88,7 @@ class TopicsFragment : Fragment(),
             ?.commit()
     }
 
-    override fun onTopicClick(topic: Topic) {
-        openArticlesFragment(topic)
+    override fun onItemClick(structureData: StructureData) {
+        openArticlesFragment(structureData as Topic)
     }
 }

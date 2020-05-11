@@ -11,14 +11,15 @@ import com.example.devnotepad.data.local.KnowledgeRoomDatabase
 import com.example.devnotepad.data.repositories.RepositoryContractForArticlesContent
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
-import com.example.devnotepad.ui.NotepadDataHandlerForContent
-import com.example.devnotepad.ui.NotepadViewModelContractForContent
+import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForContent
+import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForContent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ArticleContentViewModelForHeaders(
     application: Application
-) : AndroidViewModel(application), NotepadViewModelContractForContent {
+) : AndroidViewModel(application),
+    NotepadViewModelContractForContent {
     override val repositoryForArticlesContent: RepositoryContractForArticlesContent
     val allArticlesHeaders: LiveData<List<ArticleHeader>>
     private val notepadDataHandlerForContent: NotepadDataHandlerForContent

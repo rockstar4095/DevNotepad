@@ -7,18 +7,17 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 /**
- * TODO: inherit navigation Entities from one parent, to implement one OnItemClickListener.
- * */
-
-/**
- * Интерфейс, объединяющий сущности с данными. Содержит в себе общее для всех сущностей поле -
- * время того, когда изменились данные. В это поле записывается время изменения данных в БД
- * сервера. Оно используется для сравнения в качестве условия необходимости обновления данных.
+ * Интерфейс, объединяющий сущности с данными. Содержит в себе общие для всех сущностей поля -
+ * время того, когда изменились данные и id сущности, полученный с сервера. В это поле записывается
+ * время изменения данных в БД сервера. Оно используется для сравнения в качестве условия
+ * необходимости обновления данных.
  * */
 interface NotepadData {
     val timeWhenDataChanged: Long
     val idFromServer: Int
 }
+
+interface StructureData
 
 /**
  * Направление для изучения, например: Java, Kotlin, Android и т.д..
@@ -31,7 +30,7 @@ class DirectionOfStudy(
     val name: String,
     @SerializedName("time_when_data_changed")
     override val timeWhenDataChanged: Long
-) : NotepadData
+) : NotepadData, StructureData
 
 /**
  * Тема для изучения, например: SOLID, OOP и т.д.
@@ -48,7 +47,7 @@ class Topic(
     val progress: Int,
     @SerializedName("time_when_data_changed")
     override val timeWhenDataChanged: Long
-) : NotepadData
+) : NotepadData, StructureData
 
 /**
  * Отдельная мини-статья с краткой информацией о предмете, например: Inheritance, Encapsulation и т.д.
@@ -74,7 +73,7 @@ class Article(
     val isDifficult: Boolean,
     @SerializedName("time_when_data_changed")
     override val timeWhenDataChanged: Long
-) : NotepadData, Parcelable {
+) : NotepadData, StructureData, Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readInt(),

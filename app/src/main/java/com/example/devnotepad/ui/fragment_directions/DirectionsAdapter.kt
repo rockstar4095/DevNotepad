@@ -9,11 +9,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.DirectionOfStudy
 import com.example.devnotepad.R
+import com.example.devnotepad.ui.OnItemClickListener
 import kotlinx.android.synthetic.main.direction_item.view.*
 
 class DirectionsAdapter internal constructor(
     context: Context,
-    private val onDirectionClickListener: OnDirectionClickListener
+    private val onDirectionClickListener: OnItemClickListener
 ) : RecyclerView.Adapter<DirectionsAdapter.DirectionsViewHolder>() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
@@ -56,10 +57,10 @@ class DirectionsAdapter internal constructor(
 
         fun bind(
             directionOfStudy: DirectionOfStudy,
-            onDirectionClickListener: OnDirectionClickListener
+            onItemClickListener: OnItemClickListener
         ) {
             itemView.setOnClickListener {
-                onDirectionClickListener.onDirectionClick(directionOfStudy)
+                onItemClickListener.onItemClick(directionOfStudy)
             }
         }
     }

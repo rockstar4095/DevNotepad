@@ -11,8 +11,8 @@ import com.example.devnotepad.data.local.KnowledgeRoomDatabase
 import com.example.devnotepad.data.repositories.RepositoryContractForStructureData
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
-import com.example.devnotepad.ui.NotepadDataHandlerForStructure
-import com.example.devnotepad.ui.NotepadViewModelContractForStructure
+import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForStructure
+import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForStructure
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -32,7 +32,11 @@ class DirectionsViewModel(application: Application) : AndroidViewModel(applicati
         val directionDao = KnowledgeRoomDatabase.getDatabase(application).directionDao()
         repositoryForStructureData = DirectionsRepositoryData(directionDao)
         allDirections = repositoryForStructureData.allDirections
-        notepadDataHandlerForStructure = NotepadDataHandlerForStructure(this, devNotepadApi)
+        notepadDataHandlerForStructure =
+            NotepadDataHandlerForStructure(
+                this,
+                devNotepadApi
+            )
     }
 
     override fun insertElement(notepadData: NotepadData) =

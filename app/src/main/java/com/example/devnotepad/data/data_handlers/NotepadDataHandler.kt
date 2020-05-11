@@ -1,9 +1,8 @@
-package com.example.devnotepad.ui
+package com.example.devnotepad.data.data_handlers
 
 import com.example.devnotepad.NotepadData
 
 abstract class NotepadDataHandler {
-
 
     abstract suspend fun isDataTableEmpty(): Boolean
 
