@@ -14,6 +14,9 @@ import com.example.devnotepad.R
 import com.example.devnotepad.ui.fragment_topics.TopicsFragment
 import kotlinx.android.synthetic.main.directions_fragment.*
 
+/**
+ * Главный фрагмент показывает список направлений для изучения, например: Java, Kotlin, Android и т.д.
+ * */
 class DirectionsFragment : Fragment(),
     OnDirectionClickListener {
 

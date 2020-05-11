@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.devnotepad.NotepadData
 import com.example.devnotepad.Topic
-import com.example.devnotepad.data.NotepadRepositoryContractForStructure
-import com.example.devnotepad.data.TopicsRepository
+import com.example.devnotepad.data.repositories.TopicsRepositoryData
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
+import com.example.devnotepad.data.repositories.RepositoryContractForStructureData
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
 import com.example.devnotepad.ui.NotepadDataHandlerForStructure
@@ -18,34 +18,34 @@ import kotlinx.coroutines.launch
 
 class TopicsViewModel(application: Application) : AndroidViewModel(application),
     NotepadViewModelContractForStructure {
-    override val notepadRepository: NotepadRepositoryContractForStructure
+    override val repositoryForStructureData: RepositoryContractForStructureData
     val allTopics: LiveData<List<Topic>>
-    private val api: DevNotepadApi
-    private val notepadDataHandler: NotepadDataHandlerForStructure
+    private val devNotepadApi: DevNotepadApi
+    private val notepadDataHandlerForStructure: NotepadDataHandlerForStructure
     private val topicType = "topic"
 
     init {
 
         val retrofitInstance = RetrofitCreator.getRetrofit()
-        api = retrofitInstance.create(DevNotepadApi::class.java)
+        devNotepadApi = retrofitInstance.create(DevNotepadApi::class.java)
 
         val topicDao = KnowledgeRoomDatabase.getDatabase(application).topicDao()
-        notepadRepository = TopicsRepository(topicDao)
-        allTopics = notepadRepository.allTopics
-        notepadDataHandler = NotepadDataHandlerForStructure(this, api)
+        repositoryForStructureData = TopicsRepositoryData(topicDao)
+        allTopics = repositoryForStructureData.allTopics
+        notepadDataHandlerForStructure = NotepadDataHandlerForStructure(this, devNotepadApi)
     }
 
     override fun insertElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
             if (notepadData is Topic) {
-                notepadRepository.insertElement(notepadData as Topic)
+                repositoryForStructureData.insertElement(notepadData as Topic)
             }
         }
 
     override fun deleteElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
             if (notepadData is Topic) {
-                notepadRepository.deleteElement(notepadData)
+                repositoryForStructureData.deleteElement(notepadData)
             }
         }
 
@@ -53,6 +53,6 @@ class TopicsViewModel(application: Application) : AndroidViewModel(application),
      * Осуществляет запрос на сервер для получения тем.
      * */
     override fun makeRequestForElements() {
-        notepadDataHandler.makeRequestForStructureData(topicType)
+        notepadDataHandlerForStructure.makeRequestForStructureData(topicType)
     }
 }

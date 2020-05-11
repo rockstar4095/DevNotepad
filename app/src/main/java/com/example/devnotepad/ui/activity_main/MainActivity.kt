@@ -6,9 +6,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.devnotepad.R
 import com.example.devnotepad.ui.fragment_directions.DirectionsFragment
 
-/**
- * Главный экран показывает список направлений для изучения, например: Java, Kotlin, Android и т.д.
- * */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mainActivityViewModel: MainActivityViewModel

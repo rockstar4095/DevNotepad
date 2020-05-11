@@ -8,11 +8,10 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.properties.Delegates
 
 class NotepadDataHandlerForContent(
-    private val viewModel: NotepadViewModelContractForContent,
-    private val restApi: DevNotepadApi
+    private val notepadViewModelForContent: NotepadViewModelContractForContent,
+    private val devNotepadApi: DevNotepadApi
 ) : NotepadDataHandler() {
 
     private var parentElementId: Int = 0
@@ -22,45 +21,24 @@ class NotepadDataHandlerForContent(
         this.parentElementId = parentElementId
         this.elementType = elementType
 
-        when (elementType) {
-            "header" -> {
-                restApi.getArticleHeaders(parentElementId)
-                    .enqueue(object : Callback<List<ArticleHeader>> {
-                        override fun onResponse(
-                            call: Call<List<ArticleHeader>>, response: Response<List<ArticleHeader>>
-                        ) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                handleServerData(response.body()!!, viewModel)
-                            }
-                        }
+        devNotepadApi.getContentData(elementType, parentElementId)
+            .enqueue(object : Callback<List<NotepadData>> {
+                override fun onResponse(
+                    call: Call<List<NotepadData>>, response: Response<List<NotepadData>>
+                ) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        handleServerData(response.body()!!, notepadViewModelForContent)
+                    }
+                }
 
-                        override fun onFailure(call: Call<List<ArticleHeader>>, t: Throwable) {
-                            println("debug: response unsuccessful: $t")
-                        }
-                    })
-            }
-            "paragraph" -> {
-                restApi.getArticleParagraphs(parentElementId)
-                    .enqueue(object : Callback<List<ArticleParagraph>> {
-                        override fun onResponse(
-                            call: Call<List<ArticleParagraph>>,
-                            response: Response<List<ArticleParagraph>>
-                        ) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                handleServerData(response.body()!!, viewModel)
-                            }
-                        }
-
-                        override fun onFailure(call: Call<List<ArticleParagraph>>, t: Throwable) {
-                            println("debug: response unsuccessful: $t")
-                        }
-                    })
-            }
-        }
+                override fun onFailure(call: Call<List<NotepadData>>, t: Throwable) {
+                    println("debug: response unsuccessful: $t")
+                }
+            })
     }
 
     override suspend fun isDataTableEmpty(): Boolean {
-        return viewModel.notepadRepository.getAllElementsSync(parentElementId).isEmpty()
+        return notepadViewModelForContent.repositoryForArticlesContent.getAllElementsSync(parentElementId).isEmpty()
     }
 
     override suspend fun matchDataFromServerAndLocal(dataFromServer: List<NotepadData>) {
@@ -71,12 +49,12 @@ class NotepadDataHandlerForContent(
             serverDataHashMap[dataElement.idFromServer] = dataElement
         }
 
-        for (dataElement in viewModel.notepadRepository.getAllElementsSync(parentElementId)) {
+        for (dataElement in notepadViewModelForContent.repositoryForArticlesContent.getAllElementsSync(parentElementId)) {
             localDataHashMap[dataElement.idFromServer] = dataElement
         }
 
-        insertNewData(serverDataHashMap, localDataHashMap, viewModel)
-        replaceRenewedData(serverDataHashMap, localDataHashMap, viewModel)
-        deleteAbsentData(serverDataHashMap, localDataHashMap, viewModel)
+        insertNewData(serverDataHashMap, localDataHashMap, notepadViewModelForContent)
+        replaceRenewedData(serverDataHashMap, localDataHashMap, notepadViewModelForContent)
+        deleteAbsentData(serverDataHashMap, localDataHashMap, notepadViewModelForContent)
     }
 }

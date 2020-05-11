@@ -1,11 +1,12 @@
-package com.example.devnotepad.data
+package com.example.devnotepad.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.example.devnotepad.NotepadData
 import com.example.devnotepad.Topic
 import com.example.devnotepad.data.local.TopicDao
 
-class TopicsRepository(private val topicDao: TopicDao): NotepadRepositoryContractForStructure {
+class TopicsRepositoryData(private val topicDao: TopicDao) :
+    RepositoryContractForStructureData {
 
     /**
      * LiveData список тем для наблюдения из модели фрагмента.
@@ -13,7 +14,7 @@ class TopicsRepository(private val topicDao: TopicDao): NotepadRepositoryContrac
     val allTopics: LiveData<List<Topic>> = topicDao.getAllTopics()
 
     /**
-     * Синхронное получение списка направлений.
+     * Синхронное получение списка тем.
      * */
     override suspend fun getAllElementsSync(): List<NotepadData> {
         return topicDao.getAllTopicsSync()

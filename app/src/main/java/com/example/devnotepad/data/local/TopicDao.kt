@@ -5,7 +5,7 @@ import androidx.room.*
 import com.example.devnotepad.Topic
 
 /**
- * DAO для работы с темами для изучения.
+ * DAO для работы с темами.
  * */
 @Dao
 interface TopicDao {

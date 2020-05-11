@@ -1,8 +1,8 @@
 package com.example.devnotepad.ui
 
-import com.example.devnotepad.data.NotepadRepositoryContractForContent
+import com.example.devnotepad.data.repositories.RepositoryContractForArticlesContent
 
 interface NotepadViewModelContractForContent : NotePadViewModelContract {
-    val notepadRepository: NotepadRepositoryContractForContent
+    val repositoryForArticlesContent: RepositoryContractForArticlesContent
     fun makeRequestForElements(parentElementId: Int)
 }

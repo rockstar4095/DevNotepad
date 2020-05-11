@@ -5,5 +5,4 @@ import androidx.lifecycle.AndroidViewModel
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
-
 }

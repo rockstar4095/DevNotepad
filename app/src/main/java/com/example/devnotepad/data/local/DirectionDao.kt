@@ -5,7 +5,7 @@ import androidx.room.*
 import com.example.devnotepad.DirectionOfStudy
 
 /**
- * DAO для работы с направлениями для изучения.
+ * DAO для работы с направлениями.
  * */
 @Dao
 interface DirectionDao {

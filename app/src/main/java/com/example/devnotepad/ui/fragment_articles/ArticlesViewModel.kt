@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.devnotepad.Article
 import com.example.devnotepad.NotepadData
-import com.example.devnotepad.data.ArticlesRepository
-import com.example.devnotepad.data.NotepadRepositoryContractForStructure
+import com.example.devnotepad.data.repositories.ArticlesRepositoryData
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
+import com.example.devnotepad.data.repositories.RepositoryContractForStructureData
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
 import com.example.devnotepad.ui.NotepadDataHandlerForStructure
@@ -18,34 +18,34 @@ import kotlinx.coroutines.launch
 
 class ArticlesViewModel(application: Application) : AndroidViewModel(application),
     NotepadViewModelContractForStructure {
-    override val notepadRepository: NotepadRepositoryContractForStructure
+    override val repositoryForStructureData: RepositoryContractForStructureData
     val allArticles: LiveData<List<Article>>
-    private val api: DevNotepadApi
-    private val notepadDataHandler: NotepadDataHandlerForStructure
+    private val devNotepadApi: DevNotepadApi
+    private val notepadDataHandlerForStructure: NotepadDataHandlerForStructure
     private val articleType = "article"
 
     init {
 
         val retrofitInstance = RetrofitCreator.getRetrofit()
-        api = retrofitInstance.create(DevNotepadApi::class.java)
+        devNotepadApi = retrofitInstance.create(DevNotepadApi::class.java)
 
         val articleDao = KnowledgeRoomDatabase.getDatabase(application).articleDao()
-        notepadRepository = ArticlesRepository(articleDao)
-        allArticles = notepadRepository.allArticles
-        notepadDataHandler = NotepadDataHandlerForStructure(this, api)
+        repositoryForStructureData = ArticlesRepositoryData(articleDao)
+        allArticles = repositoryForStructureData.allArticles
+        notepadDataHandlerForStructure = NotepadDataHandlerForStructure(this, devNotepadApi)
     }
 
     override fun insertElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
             if (notepadData is Article) {
-                notepadRepository.insertElement(notepadData)
+                repositoryForStructureData.insertElement(notepadData)
             }
         }
 
     override fun deleteElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
             if (notepadData is Article) {
-                notepadRepository.deleteElement(notepadData)
+                repositoryForStructureData.deleteElement(notepadData)
             }
         }
 
@@ -53,6 +53,6 @@ class ArticlesViewModel(application: Application) : AndroidViewModel(application
      * Осуществляет запрос на сервер для получения направлений.
      * */
     override fun makeRequestForElements() {
-        notepadDataHandler.makeRequestForStructureData(articleType)
+        notepadDataHandlerForStructure.makeRequestForStructureData(articleType)
     }
 }

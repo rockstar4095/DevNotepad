@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.devnotepad.ArticleHeader
 import com.example.devnotepad.NotepadData
-import com.example.devnotepad.data.ArticlesContentRepositoryForHeaders
-import com.example.devnotepad.data.NotepadRepositoryContractForContent
+import com.example.devnotepad.data.repositories.ArticlesHeadersRepository
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
+import com.example.devnotepad.data.repositories.RepositoryContractForArticlesContent
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
 import com.example.devnotepad.ui.NotepadDataHandlerForContent
@@ -19,9 +19,9 @@ import kotlinx.coroutines.launch
 class ArticleContentViewModelForHeaders(
     application: Application
 ) : AndroidViewModel(application), NotepadViewModelContractForContent {
-    override val notepadRepository: NotepadRepositoryContractForContent
+    override val repositoryForArticlesContent: RepositoryContractForArticlesContent
     val allArticlesHeaders: LiveData<List<ArticleHeader>>
-    private val notepadDataHandler: NotepadDataHandlerForContent
+    private val notepadDataHandlerForContent: NotepadDataHandlerForContent
     private val headerType = "header"
 
     init {
@@ -29,13 +29,11 @@ class ArticleContentViewModelForHeaders(
         val retrofitInstance = RetrofitCreator.getRetrofit()
         val api = retrofitInstance.create(DevNotepadApi::class.java)
 
-        val articleContentDao = KnowledgeRoomDatabase.getDatabase(application).articleContentDao()
+        val articleHeaderDao = KnowledgeRoomDatabase.getDatabase(application).articleHeaderDao()
 
-        notepadRepository = ArticlesContentRepositoryForHeaders(articleContentDao)
-
-        allArticlesHeaders = notepadRepository.allArticleHeaders
-
-        notepadDataHandler = NotepadDataHandlerForContent(this, api)
+        repositoryForArticlesContent = ArticlesHeadersRepository(articleHeaderDao)
+        allArticlesHeaders = repositoryForArticlesContent.allArticleHeaders
+        notepadDataHandlerForContent = NotepadDataHandlerForContent(this, api)
     }
 
     /**
@@ -45,14 +43,14 @@ class ArticleContentViewModelForHeaders(
     override fun insertElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
             if (notepadData is ArticleHeader) {
-                notepadRepository.insertElement(notepadData)
+                repositoryForArticlesContent.insertElement(notepadData)
             }
         }
 
     override fun deleteElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
             if (notepadData is ArticleHeader) {
-                notepadRepository.deleteElement(notepadData)
+                repositoryForArticlesContent.deleteElement(notepadData)
             }
         }
 
@@ -60,6 +58,6 @@ class ArticleContentViewModelForHeaders(
      * Вызывает методы для запроса на сервер у всех классов-обработчиков элементов статьи.
      * */
     override fun makeRequestForElements(parentElementId: Int) {
-        notepadDataHandler.makeRequestForContentData(headerType, parentElementId)
+        notepadDataHandlerForContent.makeRequestForContentData(headerType, parentElementId)
     }
 }

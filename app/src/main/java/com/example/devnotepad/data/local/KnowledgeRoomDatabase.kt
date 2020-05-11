@@ -20,7 +20,8 @@ abstract class KnowledgeRoomDatabase : RoomDatabase() {
     abstract fun directionDao(): DirectionDao
     abstract fun topicDao(): TopicDao
     abstract fun articleDao(): ArticleDao
-    abstract fun articleContentDao(): ArticleContentDao
+    abstract fun articleParagraphDao(): ArticleParagraphDao
+    abstract fun articleHeaderDao(): ArticleHeaderDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the same time.

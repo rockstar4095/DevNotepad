@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.devnotepad.DirectionOfStudy
 import com.example.devnotepad.NotepadData
-import com.example.devnotepad.data.DirectionsRepository
-import com.example.devnotepad.data.NotepadRepositoryContractForStructure
+import com.example.devnotepad.data.repositories.DirectionsRepositoryData
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
+import com.example.devnotepad.data.repositories.RepositoryContractForStructureData
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
 import com.example.devnotepad.ui.NotepadDataHandlerForStructure
@@ -18,34 +18,34 @@ import kotlinx.coroutines.launch
 
 class DirectionsViewModel(application: Application) : AndroidViewModel(application),
     NotepadViewModelContractForStructure {
-    override val notepadRepository: NotepadRepositoryContractForStructure
+    override val repositoryForStructureData: RepositoryContractForStructureData
     val allDirections: LiveData<List<DirectionOfStudy>>
-    private val api: DevNotepadApi
-    private val notepadDataHandler: NotepadDataHandlerForStructure
+    private val devNotepadApi: DevNotepadApi
+    private val notepadDataHandlerForStructure: NotepadDataHandlerForStructure
     private val directionType = "direction"
 
     init {
 
         val retrofitInstance = RetrofitCreator.getRetrofit()
-        api = retrofitInstance.create(DevNotepadApi::class.java)
+        devNotepadApi = retrofitInstance.create(DevNotepadApi::class.java)
 
         val directionDao = KnowledgeRoomDatabase.getDatabase(application).directionDao()
-        notepadRepository = DirectionsRepository(directionDao)
-        allDirections = notepadRepository.allDirections
-        notepadDataHandler = NotepadDataHandlerForStructure(this, api)
+        repositoryForStructureData = DirectionsRepositoryData(directionDao)
+        allDirections = repositoryForStructureData.allDirections
+        notepadDataHandlerForStructure = NotepadDataHandlerForStructure(this, devNotepadApi)
     }
 
     override fun insertElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
             if (notepadData is DirectionOfStudy) {
-                notepadRepository.insertElement(notepadData)
+                repositoryForStructureData.insertElement(notepadData)
             }
         }
 
     override fun deleteElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
             if (notepadData is DirectionOfStudy) {
-                notepadRepository.deleteElement(notepadData)
+                repositoryForStructureData.deleteElement(notepadData)
             }
         }
 
@@ -53,6 +53,6 @@ class DirectionsViewModel(application: Application) : AndroidViewModel(applicati
      * Осуществляет запрос на сервер для получения направлений.
      * */
     override fun makeRequestForElements() {
-        notepadDataHandler.makeRequestForStructureData(directionType)
+        notepadDataHandlerForStructure.makeRequestForStructureData(directionType)
     }
 }

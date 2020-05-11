@@ -4,20 +4,20 @@ import com.example.devnotepad.NotepadData
 
 abstract class NotepadDataHandler {
 
+
     abstract suspend fun isDataTableEmpty(): Boolean
 
     abstract suspend fun matchDataFromServerAndLocal(dataFromServer: List<NotepadData>)
 
     protected suspend fun handleServerData(dataFromServer: List<NotepadData>, viewModel: NotePadViewModelContract) {
-
         if (isDataTableEmpty()) {
-            insertData(dataFromServer, viewModel)
+            insertDataInEmptyTable(dataFromServer, viewModel)
         } else {
             matchDataFromServerAndLocal(dataFromServer)
         }
     }
 
-    private fun insertData(dataFromServer: List<NotepadData>, viewModel: NotePadViewModelContract) {
+    private fun insertDataInEmptyTable(dataFromServer: List<NotepadData>, viewModel: NotePadViewModelContract) {
         for (dataElement in dataFromServer) {
             viewModel.insertElement(dataElement)
         }

@@ -10,8 +10,8 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class NotepadDataHandlerForStructure(
-    private val viewModel: NotepadViewModelContractForStructure,
-    private val restApi: DevNotepadApi
+    private val notepadViewModelForStructure: NotepadViewModelContractForStructure,
+    private val devNotepadApi: DevNotepadApi
 ) : NotepadDataHandler() {
 
     private var elementType: String? = null
@@ -19,60 +19,22 @@ class NotepadDataHandlerForStructure(
     fun makeRequestForStructureData(elementType: String) {
         this.elementType = elementType
 
-        when (elementType) {
-            "article" -> {
-                restApi.getArticles()
-                    .enqueue(object : Callback<List<Article>> {
-                        override fun onResponse(
-                            call: Call<List<Article>>, response: Response<List<Article>>
-                        ) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                handleServerData(response.body()!!, viewModel)
-                            }
-                        }
-
-                        override fun onFailure(call: Call<List<Article>>, t: Throwable) {
-                            println("debug: response unsuccessful: $t")
-                        }
-                    })
+        devNotepadApi.getStructureData(elementType).enqueue(object : Callback<List<NotepadData>> {
+            override fun onResponse(call: Call<List<NotepadData>>, response: Response<List<NotepadData>>) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    handleServerData(response.body()!!, notepadViewModelForStructure)
+                }
             }
-            "topic" -> {
-                restApi.getTopics()
-                    .enqueue(object : Callback<List<Topic>> {
-                        override fun onResponse(
-                            call: Call<List<Topic>>, response: Response<List<Topic>>
-                        ) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                handleServerData(response.body()!!, viewModel)
-                            }
-                        }
 
-                        override fun onFailure(call: Call<List<Topic>>, t: Throwable) {
-                            println("debug: response unsuccessful: $t")
-                        }
-                    })
+            override fun onFailure(call: Call<List<NotepadData>>, t: Throwable) {
+                println("debug: response unsuccessful: $t")
             }
-            "direction" -> {
-                restApi.getDirections()
-                    .enqueue(object : Callback<List<DirectionOfStudy>> {
-                        override fun onResponse(
-                            call: Call<List<DirectionOfStudy>>, response: Response<List<DirectionOfStudy>>
-                        ) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                handleServerData(response.body()!!, viewModel)
-                            }
-                        }
-
-                        override fun onFailure(call: Call<List<DirectionOfStudy>>, t: Throwable) {
-                            println("debug: response unsuccessful: $t")
-                        }
-                    })
-            }
-        }
+        })
     }
 
     override suspend fun isDataTableEmpty(): Boolean {
-        return viewModel.notepadRepository.getAllElementsSync().isEmpty()
+        return notepadViewModelForStructure.repositoryForStructureData.getAllElementsSync()
+            .isEmpty()
     }
 
     override suspend fun matchDataFromServerAndLocal(dataFromServer: List<NotepadData>) {
@@ -83,12 +45,12 @@ class NotepadDataHandlerForStructure(
             serverDataHashMap[dataElement.idFromServer] = dataElement
         }
 
-        for (dataElement in viewModel.notepadRepository.getAllElementsSync()) {
+        for (dataElement in notepadViewModelForStructure.repositoryForStructureData.getAllElementsSync()) {
             localDataHashMap[dataElement.idFromServer] = dataElement
         }
 
-        insertNewData(serverDataHashMap, localDataHashMap, viewModel)
-        replaceRenewedData(serverDataHashMap, localDataHashMap, viewModel)
-        deleteAbsentData(serverDataHashMap, localDataHashMap, viewModel)
+        insertNewData(serverDataHashMap, localDataHashMap, notepadViewModelForStructure)
+        replaceRenewedData(serverDataHashMap, localDataHashMap, notepadViewModelForStructure)
+        deleteAbsentData(serverDataHashMap, localDataHashMap, notepadViewModelForStructure)
     }
 }

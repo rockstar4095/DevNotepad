@@ -5,8 +5,11 @@ import androidx.room.*
 import com.example.devnotepad.ArticleHeader
 import com.example.devnotepad.ArticleParagraph
 
+/**
+ * DAO для работы с содержимым статей.
+ * */
 @Dao
-interface ArticleContentDao {
+interface ArticleParagraphDao {
 
     @Query("SELECT * FROM articles_headers_table")
     fun getArticleHeaders(): LiveData<List<ArticleHeader>>

@@ -1,11 +1,12 @@
-package com.example.devnotepad.data
+package com.example.devnotepad.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.example.devnotepad.DirectionOfStudy
 import com.example.devnotepad.NotepadData
 import com.example.devnotepad.data.local.DirectionDao
 
-class DirectionsRepository(private val directionDao: DirectionDao): NotepadRepositoryContractForStructure {
+class DirectionsRepositoryData(private val directionDao: DirectionDao) :
+    RepositoryContractForStructureData {
 
     /**
      * LiveData список направлений для наблюдения из модели фрагмента.
@@ -20,14 +21,14 @@ class DirectionsRepository(private val directionDao: DirectionDao): NotepadRepos
     }
 
     /**
-     * Вставляет тему в БД с заменой содержимого, если она уже существует.
+     * Вставляет направление в БД с заменой содержимого, если оно уже существует.
      * */
     override suspend fun insertElement(notepadData: NotepadData) {
         directionDao.insertDirection(notepadData as DirectionOfStudy)
     }
 
     /**
-     * Удаляет тему из БД.
+     * Удаляет направление из БД.
      * */
     override suspend fun deleteElement(notepadData: NotepadData) {
         directionDao.deleteDirection(notepadData as DirectionOfStudy)
