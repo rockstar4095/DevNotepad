@@ -33,10 +33,7 @@ class TopicsViewModel(application: Application) : AndroidViewModel(application),
         repositoryForStructureData = TopicsRepositoryData(topicDao)
         allTopics = repositoryForStructureData.allTopics
         notepadDataHandlerForStructure =
-            NotepadDataHandlerForStructure(
-                this,
-                devNotepadApi
-            )
+            NotepadDataHandlerForStructure(this, devNotepadApi)
     }
 
     override fun insertElement(notepadData: NotepadData) =

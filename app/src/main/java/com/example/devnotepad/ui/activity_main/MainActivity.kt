@@ -4,17 +4,25 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import com.example.devnotepad.R
+import com.example.devnotepad.di.AppComponent
+import com.example.devnotepad.ui.ViewModelProviderFactory
 import com.example.devnotepad.ui.fragment_directions.DirectionsFragment
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
+
+//    doesn't work for now
+//    @Inject
+//    lateinit var viewModelProviderFactory: ViewModelProviderFactory
 
     private lateinit var mainActivityViewModel: MainActivityViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
-        mainActivityViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        mainActivityViewModel = ViewModelProvider(this/**, viewModelProviderFactory*/).get(MainActivityViewModel::class.java)
 
         setMainFragment()
     }

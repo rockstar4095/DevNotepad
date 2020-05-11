@@ -33,10 +33,7 @@ class DirectionsViewModel(application: Application) : AndroidViewModel(applicati
         repositoryForStructureData = DirectionsRepositoryData(directionDao)
         allDirections = repositoryForStructureData.allDirections
         notepadDataHandlerForStructure =
-            NotepadDataHandlerForStructure(
-                this,
-                devNotepadApi
-            )
+            NotepadDataHandlerForStructure(this, devNotepadApi)
     }
 
     override fun insertElement(notepadData: NotepadData) =
