@@ -15,8 +15,9 @@ import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForStructure
 import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForStructure
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class TopicsViewModel(application: Application) : AndroidViewModel(application),
+class TopicsViewModel @Inject constructor(application: Application) : AndroidViewModel(application),
     NotepadViewModelContractForStructure {
     override val repositoryForStructureData: RepositoryContractForStructureData
     val allTopics: LiveData<List<Topic>>

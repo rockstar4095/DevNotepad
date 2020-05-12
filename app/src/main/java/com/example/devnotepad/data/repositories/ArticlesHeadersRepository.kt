@@ -12,7 +12,7 @@ class ArticlesHeadersRepository(
     private val articleHeaderDao: ArticleHeaderDao
 ) : RepositoryContractForArticlesContent {
 
-    val allArticleHeaders: LiveData<List<ArticleHeader>> =
+    val allArticlesHeaders: LiveData<List<ArticleHeader>> =
         articleHeaderDao.getArticleHeaders()
 
     /**

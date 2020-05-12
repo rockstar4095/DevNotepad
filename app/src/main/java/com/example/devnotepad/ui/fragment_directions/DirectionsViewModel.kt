@@ -15,8 +15,9 @@ import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForStructure
 import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForStructure
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class DirectionsViewModel(application: Application) : AndroidViewModel(application),
+class DirectionsViewModel @Inject constructor(application: Application) : AndroidViewModel(application),
     NotepadViewModelContractForStructure {
     override val repositoryForStructureData: RepositoryContractForStructureData
     val allDirections: LiveData<List<DirectionOfStudy>>

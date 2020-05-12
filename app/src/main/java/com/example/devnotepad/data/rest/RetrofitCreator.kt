@@ -37,6 +37,7 @@ public abstract class RetrofitCreator {
                     .registerSubtype(Article::class.java, Article::class.java.name) // "Article"
                     .registerSubtype(ArticleHeader::class.java, ArticleHeader::class.java.name) // "ArticleHeader"
                     .registerSubtype(ArticleParagraph::class.java, ArticleParagraph::class.java.name) // "ArticleParagraph"
+                    .registerSubtype(ArticleCodeSnippet::class.java, ArticleCodeSnippet::class.java.name) // "ArticleCodeSnippet"
 
                 val gson = GsonBuilder()
                     .setPrettyPrinting()

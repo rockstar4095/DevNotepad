@@ -11,17 +11,25 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.*
+import com.example.devnotepad.ui.ViewModelProviderFactory
 
 import com.example.devnotepad.ui.fragment_articles.ArticlesFragment
+import dagger.android.support.DaggerFragment
+import javax.inject.Inject
 
-class ArticleContentFragment : Fragment() {
+class ArticleContentFragment : DaggerFragment() {
+
+    @Inject
+    lateinit var viewModelProviderFactory: ViewModelProviderFactory
 
     companion object {
         fun newInstance() = ArticleContentFragment()
+        private const val RECYCLER_VIEW_CACHE_SIZE = 64
     }
 
     private lateinit var viewModelForHeadersForHeaders: ArticleContentViewModelForHeaders
     private lateinit var viewModelForHeadersForParagraphs: ArticleContentViewModelForParagraphs
+    private lateinit var viewModelForHeadersForCodeSnippets: ArticleContentViewModelForCodeSnippets
     private lateinit var adapter: ArticleContentAdapter
     private lateinit var gottenArticle: Article
     private lateinit var recyclerView: RecyclerView
@@ -47,16 +55,25 @@ class ArticleContentFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModelForHeadersForHeaders = ViewModelProvider(this).get(ArticleContentViewModelForHeaders::class.java)
-        viewModelForHeadersForParagraphs = ViewModelProvider(this).get(ArticleContentViewModelForParagraphs::class.java)
+        viewModelForHeadersForHeaders = ViewModelProvider(this, viewModelProviderFactory)
+            .get(ArticleContentViewModelForHeaders::class.java)
+
+        viewModelForHeadersForParagraphs = ViewModelProvider(this, viewModelProviderFactory)
+            .get(ArticleContentViewModelForParagraphs::class.java)
+
+        viewModelForHeadersForCodeSnippets = ViewModelProvider(this, viewModelProviderFactory)
+            .get(ArticleContentViewModelForCodeSnippets::class.java)
+
         adapter = ArticleContentAdapter(requireContext())
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.setItemViewCacheSize(RECYCLER_VIEW_CACHE_SIZE)
 
         // Запрос на сервер содержимого данной статьи.
         viewModelForHeadersForHeaders.makeRequestForElements(gottenArticle.idFromServer)
         viewModelForHeadersForParagraphs.makeRequestForElements(gottenArticle.idFromServer)
+        viewModelForHeadersForCodeSnippets.makeRequestForElements(gottenArticle.idFromServer)
 
         addSourcesToMediator()
         observeMediator()
@@ -85,6 +102,16 @@ class ArticleContentFragment : Fragment() {
                 }
             }
             articleContentMediator.value = filteredParagraphs
+        })
+
+        articleContentMediator.addSource(viewModelForHeadersForCodeSnippets.allArticlesCodeSnippets, Observer { allCodeSnippets ->
+            val filteredCodeSnippets = ArrayList<ArticleCodeSnippet>()
+            for (codeSnippet in allCodeSnippets) {
+                if (codeSnippet.articleIdFromServer == gottenArticle.idFromServer) {
+                    filteredCodeSnippets.add(codeSnippet)
+                }
+            }
+            articleContentMediator.value = filteredCodeSnippets
         })
     }
 

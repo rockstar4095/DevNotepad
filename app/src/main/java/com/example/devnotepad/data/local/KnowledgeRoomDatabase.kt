@@ -12,16 +12,18 @@ import com.example.devnotepad.*
         Topic::class,
         Article::class,
         ArticleHeader::class,
-        ArticleParagraph::class
-    ], version = 3
+        ArticleParagraph::class,
+        ArticleCodeSnippet::class
+    ], version = 4
 )
 abstract class KnowledgeRoomDatabase : RoomDatabase() {
 
     abstract fun directionDao(): DirectionDao
     abstract fun topicDao(): TopicDao
     abstract fun articleDao(): ArticleDao
-    abstract fun articleParagraphDao(): ArticleParagraphDao
     abstract fun articleHeaderDao(): ArticleHeaderDao
+    abstract fun articleParagraphDao(): ArticleParagraphDao
+    abstract fun articleCodeSnippetDao(): ArticleCodeSnippetDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the same time.

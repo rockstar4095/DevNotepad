@@ -1,4 +1,4 @@
-package com.example.devnotepad.di.modules
+package com.example.devnotepad.di.modules.models_modules
 
 import androidx.lifecycle.ViewModel
 import com.example.devnotepad.di.ViewModelKey

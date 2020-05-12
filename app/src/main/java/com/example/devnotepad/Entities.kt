@@ -177,3 +177,21 @@ class ArticleParagraph(
         return this.paragraph
     }
 }
+
+@Entity(tableName = "articles_code_snippets_table")
+class ArticleCodeSnippet(
+    @PrimaryKey
+    @SerializedName("id")
+    override val idFromServer: Int,
+    @SerializedName("article_id")
+    val articleIdFromServer: Int,
+    @SerializedName("position_in_article")
+    override val positionInArticle: Int,
+    val url: String,
+    @SerializedName("time_when_data_changed")
+    override val timeWhenDataChanged: Long
+) : NotepadData, ArticlePiece {
+    override fun getContentOfPiece(): String {
+        return this.url
+    }
+}

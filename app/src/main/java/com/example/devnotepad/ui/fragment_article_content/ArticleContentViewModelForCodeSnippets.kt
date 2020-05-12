@@ -4,37 +4,37 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.example.devnotepad.ArticleHeader
+import com.example.devnotepad.ArticleCodeSnippet
 import com.example.devnotepad.NotepadData
-import com.example.devnotepad.data.repositories.ArticlesHeadersRepository
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
 import com.example.devnotepad.data.repositories.RepositoryContractForArticlesContent
 import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
 import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForContent
 import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForContent
+import com.example.devnotepad.data.repositories.ArticlesCodeSnippetsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ArticleContentViewModelForHeaders @Inject constructor(
+class ArticleContentViewModelForCodeSnippets @Inject constructor(
     application: Application
 ) : AndroidViewModel(application),
     NotepadViewModelContractForContent {
     override val repositoryForArticlesContent: RepositoryContractForArticlesContent
-    val allArticlesHeaders: LiveData<List<ArticleHeader>>
+    val allArticlesCodeSnippets: LiveData<List<ArticleCodeSnippet>>
     private val notepadDataHandlerForContent: NotepadDataHandlerForContent
-    private val headerType = "header"
+    private val codeSnippetType = "codeSnippet"
 
     init {
 
         val retrofitInstance = RetrofitCreator.getRetrofit()
         val api = retrofitInstance.create(DevNotepadApi::class.java)
 
-        val articleHeaderDao = KnowledgeRoomDatabase.getDatabase(application).articleHeaderDao()
+        val articleContentDao = KnowledgeRoomDatabase.getDatabase(application).articleCodeSnippetDao()
 
-        repositoryForArticlesContent = ArticlesHeadersRepository(articleHeaderDao)
-        allArticlesHeaders = repositoryForArticlesContent.allArticlesHeaders
+        repositoryForArticlesContent = ArticlesCodeSnippetsRepository(articleContentDao)
+        allArticlesCodeSnippets = repositoryForArticlesContent.allArticlesCodeSnippets
         notepadDataHandlerForContent = NotepadDataHandlerForContent(this, api)
     }
 
@@ -44,14 +44,14 @@ class ArticleContentViewModelForHeaders @Inject constructor(
      * */
     override fun insertElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
-            if (notepadData is ArticleHeader) {
+            if (notepadData is ArticleCodeSnippet) {
                 repositoryForArticlesContent.insertElement(notepadData)
             }
         }
 
     override fun deleteElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
-            if (notepadData is ArticleHeader) {
+            if (notepadData is ArticleCodeSnippet) {
                 repositoryForArticlesContent.deleteElement(notepadData)
             }
         }
@@ -60,6 +60,6 @@ class ArticleContentViewModelForHeaders @Inject constructor(
      * Вызывает методы для запроса на сервер у всех классов-обработчиков элементов статьи.
      * */
     override fun makeRequestForElements(parentElementId: Int) {
-        notepadDataHandlerForContent.makeRequestForContentData(headerType, parentElementId)
+        notepadDataHandlerForContent.makeRequestForContentData(codeSnippetType, parentElementId)
     }
 }

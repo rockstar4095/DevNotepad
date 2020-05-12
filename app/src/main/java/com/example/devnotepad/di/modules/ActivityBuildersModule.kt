@@ -1,5 +1,6 @@
 package com.example.devnotepad.di.modules
 
+import com.example.devnotepad.di.modules.models_modules.MainActivityViewModelModule
 import com.example.devnotepad.ui.activity_main.MainActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector

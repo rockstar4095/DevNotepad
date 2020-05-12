@@ -15,8 +15,9 @@ import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForContent
 import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForContent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ArticleContentViewModelForParagraphs(
+class ArticleContentViewModelForParagraphs @Inject constructor(
     application: Application
 ) : AndroidViewModel(application),
     NotepadViewModelContractForContent {
@@ -33,7 +34,7 @@ class ArticleContentViewModelForParagraphs(
         val articleContentDao = KnowledgeRoomDatabase.getDatabase(application).articleParagraphDao()
 
         repositoryForArticlesContent = ArticlesParagraphsRepository(articleContentDao)
-        allArticlesParagraphs = repositoryForArticlesContent.allArticleParagraphs
+        allArticlesParagraphs = repositoryForArticlesContent.allArticlesParagraphs
         notepadDataHandlerForContent = NotepadDataHandlerForContent(this, api)
     }
 

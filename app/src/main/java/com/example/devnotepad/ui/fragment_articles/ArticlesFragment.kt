@@ -13,12 +13,18 @@ import com.example.devnotepad.Article
 import com.example.devnotepad.R
 import com.example.devnotepad.StructureData
 import com.example.devnotepad.ui.OnItemClickListener
+import com.example.devnotepad.ui.ViewModelProviderFactory
 import com.example.devnotepad.ui.fragment_article_content.ArticleContentFragment
 import com.example.devnotepad.ui.fragment_topics.TopicsFragment
+import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.articles_fragment.*
+import javax.inject.Inject
 
-class ArticlesFragment : Fragment(),
+class ArticlesFragment : DaggerFragment(),
     OnItemClickListener {
+
+    @Inject
+    lateinit var viewModelProviderFactory: ViewModelProviderFactory
 
     companion object {
         fun newInstance() = ArticlesFragment()
@@ -42,9 +48,7 @@ class ArticlesFragment : Fragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel = ViewModelProvider(this).get(ArticlesViewModel::class.java)
-
-        viewModel = ViewModelProvider(this).get(ArticlesViewModel::class.java)
+        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(ArticlesViewModel::class.java)
         val adapter = ArticlesAdapter(requireContext(), this)
 
         articlesRecyclerView.adapter = adapter

@@ -1,38 +1,38 @@
 package com.example.devnotepad.data.repositories
 
 import androidx.lifecycle.LiveData
-import com.example.devnotepad.ArticleParagraph
+import com.example.devnotepad.ArticleCodeSnippet
 import com.example.devnotepad.NotepadData
-import com.example.devnotepad.data.local.ArticleParagraphDao
+import com.example.devnotepad.data.local.ArticleCodeSnippetDao
 
 /**
  * Репозиторий обрабатывает запросы к содержимому статей.
  * */
-class ArticlesParagraphsRepository(
-    private val articleParagraphDao: ArticleParagraphDao
+class ArticlesCodeSnippetsRepository(
+    private val articleCodeSnippetDao: ArticleCodeSnippetDao
 ) : RepositoryContractForArticlesContent {
 
-    val allArticlesParagraphs: LiveData<List<ArticleParagraph>> =
-        articleParagraphDao.getArticleParagraphs()
+    val allArticlesCodeSnippets: LiveData<List<ArticleCodeSnippet>> =
+        articleCodeSnippetDao.getArticleCodeSnippets()
 
     /**
      * Синхронное получение списка параграфов.
      * */
     override suspend fun getAllElementsSync(parentIdFromServer: Int): List<NotepadData> {
-        return articleParagraphDao.getArticleParagraphsSync(parentIdFromServer)
+        return articleCodeSnippetDao.getArticleCodeSnippetsSync(parentIdFromServer)
     }
 
     /**
      * Вставляет параграф в БД с заменой содержимого, если он уже существует.
      * */
     override suspend fun insertElement(notepadData: NotepadData) {
-        articleParagraphDao.insertArticleParagraph(notepadData as ArticleParagraph)
+        articleCodeSnippetDao.insertArticleCodeSnippet(notepadData as ArticleCodeSnippet)
     }
 
     /**
      * Удаляет параграф из БД.
      * */
     override suspend fun deleteElement(notepadData: NotepadData) {
-        articleParagraphDao.deleteArticleParagraph(notepadData as ArticleParagraph)
+        articleCodeSnippetDao.deleteArticleCodeSnippet(notepadData as ArticleCodeSnippet)
     }
 }

@@ -13,18 +13,23 @@ import com.example.devnotepad.DirectionOfStudy
 import com.example.devnotepad.R
 import com.example.devnotepad.StructureData
 import com.example.devnotepad.ui.OnItemClickListener
+import com.example.devnotepad.ui.ViewModelProviderFactory
 import com.example.devnotepad.ui.fragment_topics.TopicsFragment
+import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.directions_fragment.*
+import javax.inject.Inject
 
 /**
  * Главный фрагмент показывает список направлений для изучения, например: Java, Kotlin, Android и т.д.
  * */
-class DirectionsFragment : Fragment(),
+class DirectionsFragment : DaggerFragment(),
     OnItemClickListener {
 
+    @Inject
+    lateinit var viewModelProviderFactory: ViewModelProviderFactory
+
     companion object {
-        fun newInstance() =
-            DirectionsFragment()
+        fun newInstance() = DirectionsFragment()
 
         const val directionKey = "direction"
     }
@@ -42,7 +47,7 @@ class DirectionsFragment : Fragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel = ViewModelProvider(this).get(DirectionsViewModel::class.java)
+        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(DirectionsViewModel::class.java)
 
         val adapter = DirectionsAdapter(requireContext(), this)
 
