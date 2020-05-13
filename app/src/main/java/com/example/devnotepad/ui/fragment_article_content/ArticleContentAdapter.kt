@@ -1,29 +1,17 @@
 package com.example.devnotepad.ui.fragment_article_content
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.Transformation
-import android.webkit.WebSettings
 import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.*
 import kotlinx.android.synthetic.main.article_code_snippet_item.view.*
 import kotlinx.android.synthetic.main.article_header_item.view.*
 import kotlinx.android.synthetic.main.article_paragraph_item.view.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.concurrent.schedule
 
 class ArticleContentAdapter(
     context: Context
@@ -119,67 +107,17 @@ class ArticleContentAdapter(
         }
     }
 
-    /**TODO: replace with appropriate clean code
-     * handle scenario when network is not available*/
     class ArticleCodeSnippetViewHolder(itemView: View) :
         BaseViewHolder<ArticleCodeSnippet>(itemView) {
         private val webView: WebView = itemView.webView
+        private val loadingPlaceholder: LinearLayout = itemView.loadingPlaceholder
+        private val noInternetConnectionPlaceholder: LinearLayout = itemView.noInternetConnectionPlaceholder
 
-        @SuppressLint("SetJavaScriptEnabled")
         override fun bind(item: ArticleCodeSnippet) {
-            webView.settings.javaScriptEnabled = true
-            webView.settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
-            webView.setBackgroundColor(Color.TRANSPARENT)
+            val codeSnippetController = CodeSnippetController(
+                item, webView, loadingPlaceholder, noInternetConnectionPlaceholder)
 
-//            webView.setOnTouchListener(View.OnTouchListener { view, motionEvent ->
-//                when (motionEvent.touchMajor){
-//                    1.0f -> webView.parent.parent.parent.requestDisallowInterceptTouchEvent(false)
-//                }
-//                return@OnTouchListener true
-//            })
-
-            val url = "\t ${item.getContentOfPiece()}"
-            webView.webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    Timer().schedule(500) {
-                        expandView(webView)
-                        CoroutineScope(Dispatchers.Main).launch {
-                            webView.visibility = View.VISIBLE
-                        }
-                    }
-                }
-            }
-            webView.layoutParams.height = 1
-            webView.loadUrl(url)
-        }
-
-        /**TODO: replace with appropriate clean code*/
-        private fun expandView(view: View) {
-            val parentView = view.parent as View
-            val matchParentMeasureSpec = View.MeasureSpec.makeMeasureSpec(parentView.width, View.MeasureSpec.EXACTLY)
-            val wrapContentMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            view.measure(matchParentMeasureSpec, wrapContentMeasureSpec)
-            val targetHeight = view.measuredHeight
-
-            view.layoutParams.height = 1
-            val animation = object : Animation() {
-                override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
-                    view.layoutParams.height = if (interpolatedTime == 1f) {
-                        ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    } else {
-                        (targetHeight * interpolatedTime).toInt()
-                    }
-
-                    view.requestLayout()
-                }
-
-                override fun willChangeBounds(): Boolean {
-                    return true
-                }
-            }
-
-            animation.duration = (targetHeight / view.context.resources.displayMetrics.density).toLong() * 10
-            view.startAnimation(animation)
+            codeSnippetController.loadCodeSnippet()
         }
     }
 

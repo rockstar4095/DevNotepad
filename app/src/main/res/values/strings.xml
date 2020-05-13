@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Dev Notepad</string>
+    <string name="loading">Загрузка…</string>
+    <string name="noInternetConnection">Отсутствует интернет-соединение.</string>
+    <string name="unableToLoadCodeSnippet">Невозможно загрузить фрагмент кода.</string>
+    <string name="tryAgain">Попробовать снова</string>
 </resources>

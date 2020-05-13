@@ -8,7 +8,10 @@ abstract class NotepadDataHandler {
 
     abstract suspend fun matchDataFromServerAndLocal(dataFromServer: List<NotepadData>)
 
-    protected suspend fun handleServerData(dataFromServer: List<NotepadData>, viewModel: NotePadViewModelContract) {
+    protected suspend fun handleServerData(
+        dataFromServer: List<NotepadData>,
+        viewModel: NotePadViewModelContract
+    ) {
         if (isDataTableEmpty()) {
             insertDataInEmptyTable(dataFromServer, viewModel)
         } else {
@@ -16,7 +19,10 @@ abstract class NotepadDataHandler {
         }
     }
 
-    private fun insertDataInEmptyTable(dataFromServer: List<NotepadData>, viewModel: NotePadViewModelContract) {
+    private fun insertDataInEmptyTable(
+        dataFromServer: List<NotepadData>,
+        viewModel: NotePadViewModelContract
+    ) {
         for (dataElement in dataFromServer) {
             viewModel.insertElement(dataElement)
         }
@@ -28,10 +34,8 @@ abstract class NotepadDataHandler {
         viewModel: NotePadViewModelContract
     ) {
         for ((idFromServer, dataElement) in serverDataHashMap) {
-            if (localDataHashMap[idFromServer] != null) {
-                if (!localDataHashMap.containsKey(idFromServer)) {
-                    viewModel.insertElement(dataElement)
-                }
+            if (!localDataHashMap.containsKey(idFromServer)) {
+                viewModel.insertElement(dataElement)
             }
         }
     }
@@ -42,12 +46,10 @@ abstract class NotepadDataHandler {
         viewModel: NotePadViewModelContract
     ) {
         for ((idFromServer, dataElement) in serverDataHashMap) {
-            if (localDataHashMap[idFromServer] != null) {
-                if (localDataHashMap.containsKey(idFromServer) &&
-                    dataElement.timeWhenDataChanged != localDataHashMap[idFromServer]!!.timeWhenDataChanged
-                ) {
-                    viewModel.insertElement(dataElement)
-                }
+            if (localDataHashMap.containsKey(idFromServer) &&
+                dataElement.timeWhenDataChanged != localDataHashMap[idFromServer]!!.timeWhenDataChanged
+            ) {
+                viewModel.insertElement(dataElement)
             }
         }
     }
@@ -58,10 +60,8 @@ abstract class NotepadDataHandler {
         viewModel: NotePadViewModelContract
     ) {
         for ((idFromServer, dataElement) in localDataHashMap) {
-            if (localDataHashMap[idFromServer] != null) {
-                if (!serverDataHashMap.containsKey(idFromServer)) {
-                    viewModel.deleteElement(dataElement)
-                }
+            if (!serverDataHashMap.containsKey(idFromServer)) {
+                viewModel.deleteElement(dataElement)
             }
         }
     }
