@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.devnotepad.ArticleCodeSnippet
+import com.example.devnotepad.BaseApplication
 import com.example.devnotepad.NotepadData
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
 import com.example.devnotepad.data.repositories.RepositoryContractForArticlesContent
@@ -15,6 +16,7 @@ import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForCont
 import com.example.devnotepad.data.repositories.ArticlesCodeSnippetsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Retrofit
 import javax.inject.Inject
 
 class ArticleContentViewModelForCodeSnippets @Inject constructor(
@@ -23,19 +25,25 @@ class ArticleContentViewModelForCodeSnippets @Inject constructor(
     NotepadViewModelContractForContent {
     override val repositoryForArticlesContent: RepositoryContractForArticlesContent
     val allArticlesCodeSnippets: LiveData<List<ArticleCodeSnippet>>
+    private val devNotepadApi: DevNotepadApi
     private val notepadDataHandlerForContent: NotepadDataHandlerForContent
     private val codeSnippetType = "codeSnippet"
 
-    init {
+    @Inject
+    lateinit var retrofit: Retrofit
 
-        val retrofitInstance = RetrofitCreator.getRetrofit()
-        val api = retrofitInstance.create(DevNotepadApi::class.java)
+    init {
+        val daggerAppComponent = BaseApplication.appComponent
+        daggerAppComponent.inject(this)
+        println("debug: $daggerAppComponent")
+
+        devNotepadApi = retrofit.create(DevNotepadApi::class.java)
 
         val articleContentDao = KnowledgeRoomDatabase.getDatabase(application).articleCodeSnippetDao()
 
         repositoryForArticlesContent = ArticlesCodeSnippetsRepository(articleContentDao)
         allArticlesCodeSnippets = repositoryForArticlesContent.allArticlesCodeSnippets
-        notepadDataHandlerForContent = NotepadDataHandlerForContent(this, api)
+        notepadDataHandlerForContent = NotepadDataHandlerForContent(this, devNotepadApi)
     }
 
     /**

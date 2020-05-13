@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.example.devnotepad.BaseApplication
 import com.example.devnotepad.DirectionOfStudy
 import com.example.devnotepad.NotepadData
 import com.example.devnotepad.data.repositories.DirectionsRepositoryData
@@ -13,8 +14,11 @@ import com.example.devnotepad.data.rest.DevNotepadApi
 import com.example.devnotepad.data.rest.RetrofitCreator
 import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForStructure
 import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForStructure
+import com.example.devnotepad.di.AppComponent
+import com.example.devnotepad.di.DaggerAppComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Retrofit
 import javax.inject.Inject
 
 class DirectionsViewModel @Inject constructor(application: Application) : AndroidViewModel(application),
@@ -25,10 +29,14 @@ class DirectionsViewModel @Inject constructor(application: Application) : Androi
     private val notepadDataHandlerForStructure: NotepadDataHandlerForStructure
     private val directionType = "direction"
 
-    init {
+    @Inject
+    lateinit var retrofit: Retrofit
 
-        val retrofitInstance = RetrofitCreator.getRetrofit()
-        devNotepadApi = retrofitInstance.create(DevNotepadApi::class.java)
+    init {
+        val daggerAppComponent = BaseApplication.appComponent
+        daggerAppComponent.inject(this)
+
+        devNotepadApi = retrofit.create(DevNotepadApi::class.java)
 
         val directionDao = KnowledgeRoomDatabase.getDatabase(application).directionDao()
         repositoryForStructureData = DirectionsRepositoryData(directionDao)

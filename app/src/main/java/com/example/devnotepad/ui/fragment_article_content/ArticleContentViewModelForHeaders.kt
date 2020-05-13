@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.devnotepad.ArticleHeader
+import com.example.devnotepad.BaseApplication
 import com.example.devnotepad.NotepadData
 import com.example.devnotepad.data.repositories.ArticlesHeadersRepository
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
@@ -15,6 +16,7 @@ import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForContent
 import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForContent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Retrofit
 import javax.inject.Inject
 
 class ArticleContentViewModelForHeaders @Inject constructor(
@@ -23,19 +25,25 @@ class ArticleContentViewModelForHeaders @Inject constructor(
     NotepadViewModelContractForContent {
     override val repositoryForArticlesContent: RepositoryContractForArticlesContent
     val allArticlesHeaders: LiveData<List<ArticleHeader>>
+    private val devNotepadApi: DevNotepadApi
     private val notepadDataHandlerForContent: NotepadDataHandlerForContent
     private val headerType = "header"
 
-    init {
+    @Inject
+    lateinit var retrofit: Retrofit
 
-        val retrofitInstance = RetrofitCreator.getRetrofit()
-        val api = retrofitInstance.create(DevNotepadApi::class.java)
+    init {
+        val daggerAppComponent = BaseApplication.appComponent
+        daggerAppComponent.inject(this)
+        println("debug: $daggerAppComponent")
+
+        devNotepadApi = retrofit.create(DevNotepadApi::class.java)
 
         val articleHeaderDao = KnowledgeRoomDatabase.getDatabase(application).articleHeaderDao()
 
         repositoryForArticlesContent = ArticlesHeadersRepository(articleHeaderDao)
         allArticlesHeaders = repositoryForArticlesContent.allArticlesHeaders
-        notepadDataHandlerForContent = NotepadDataHandlerForContent(this, api)
+        notepadDataHandlerForContent = NotepadDataHandlerForContent(this, devNotepadApi)
     }
 
     /**
