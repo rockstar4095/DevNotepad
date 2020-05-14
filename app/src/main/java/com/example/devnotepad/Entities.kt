@@ -2,6 +2,7 @@ package com.example.devnotepad
 
 import android.os.Parcel
 import android.os.Parcelable
+import android.webkit.WebView
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
@@ -189,7 +190,27 @@ class ArticleCodeSnippet(
     override val positionInArticle: Int,
     val url: String,
     @SerializedName("time_when_data_changed")
-    override val timeWhenDataChanged: Long
+    override val timeWhenDataChanged: Long,
+    var webViewHeight: Int
+) : NotepadData, ArticlePiece {
+    override fun getContentOfPiece(): String {
+        return this.url
+    }
+}
+
+@Entity(tableName = "articles_images_table")
+class ArticleImage(
+    @PrimaryKey
+    @SerializedName("id")
+    override val idFromServer: Int,
+    @SerializedName("article_id")
+    val articleIdFromServer: Int,
+    @SerializedName("position_in_article")
+    override val positionInArticle: Int,
+    val url: String,
+    @SerializedName("time_when_data_changed")
+    override val timeWhenDataChanged: Long,
+    var imageHeight: Int
 ) : NotepadData, ArticlePiece {
     override fun getContentOfPiece(): String {
         return this.url

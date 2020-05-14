@@ -2,6 +2,7 @@ package com.example.devnotepad
 
 import com.example.devnotepad.di.AppComponent
 import com.example.devnotepad.di.DaggerAppComponent
+import com.example.devnotepad.utils.InternetConnectionChecker
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 
@@ -15,6 +16,15 @@ class BaseApplication : DaggerApplication() {
     override fun onCreate() {
         super.onCreate()
         baseApplication = this
+        initializeAppComponent()
+        initializeInternetConnectionChecker()
+    }
+
+    private fun initializeInternetConnectionChecker() {
+        val internetConnectionChecker = InternetConnectionChecker(this)
+    }
+
+    private fun initializeAppComponent() {
         appComponent = DaggerAppComponent.builder().application(this).build()
     }
 

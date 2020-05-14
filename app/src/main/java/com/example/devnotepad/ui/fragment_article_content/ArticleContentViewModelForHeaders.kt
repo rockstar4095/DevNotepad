@@ -35,7 +35,6 @@ class ArticleContentViewModelForHeaders @Inject constructor(
     init {
         val daggerAppComponent = BaseApplication.appComponent
         daggerAppComponent.inject(this)
-        println("debug: $daggerAppComponent")
 
         devNotepadApi = retrofit.create(DevNotepadApi::class.java)
 

@@ -4,30 +4,29 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.example.devnotepad.ArticleParagraph
+import com.example.devnotepad.ArticleImage
 import com.example.devnotepad.BaseApplication
 import com.example.devnotepad.NotepadData
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
-import com.example.devnotepad.data.repositories.ArticlesParagraphsRepository
-import com.example.devnotepad.data.repositories.RepositoryContractForArticlesContent
 import com.example.devnotepad.data.rest.DevNotepadApi
-import com.example.devnotepad.data.rest.RetrofitCreator
 import com.example.devnotepad.data.data_handlers.NotepadDataHandlerForContent
 import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForContent
+import com.example.devnotepad.data.repositories.ArticlesImagesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.Retrofit
 import javax.inject.Inject
 
-class ArticleContentViewModelForParagraphs @Inject constructor(
+class ArticleContentViewModelForImages @Inject constructor(
     application: Application
 ) : AndroidViewModel(application),
     NotepadViewModelContractForContent {
-    override val repositoryForArticlesContent: RepositoryContractForArticlesContent
-    val allArticlesParagraphs: LiveData<List<ArticleParagraph>>
+    override val repositoryForArticlesContent: ArticlesImagesRepository
+    val allArticlesImages: LiveData<List<ArticleImage>>
     private val devNotepadApi: DevNotepadApi
     private val notepadDataHandlerForContent: NotepadDataHandlerForContent
-    private val paragraphType = "paragraph"
+    private val imageType = "image"
 
     @Inject
     lateinit var retrofit: Retrofit
@@ -38,10 +37,10 @@ class ArticleContentViewModelForParagraphs @Inject constructor(
 
         devNotepadApi = retrofit.create(DevNotepadApi::class.java)
 
-        val articleContentDao = KnowledgeRoomDatabase.getDatabase(application).articleParagraphDao()
+        val articleContentDao = KnowledgeRoomDatabase.getDatabase(application).articleImageDao()
 
-        repositoryForArticlesContent = ArticlesParagraphsRepository(articleContentDao)
-        allArticlesParagraphs = repositoryForArticlesContent.allArticlesParagraphs
+        repositoryForArticlesContent = ArticlesImagesRepository(articleContentDao)
+        allArticlesImages = repositoryForArticlesContent.allArticlesImages
         notepadDataHandlerForContent = NotepadDataHandlerForContent(this, devNotepadApi)
     }
 
@@ -51,14 +50,14 @@ class ArticleContentViewModelForParagraphs @Inject constructor(
      * */
     override fun insertElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
-            if (notepadData is ArticleParagraph) {
+            if (notepadData is ArticleImage) {
                 repositoryForArticlesContent.insertElement(notepadData)
             }
         }
 
     override fun deleteElement(notepadData: NotepadData) =
         viewModelScope.launch(Dispatchers.IO) {
-            if (notepadData is ArticleParagraph) {
+            if (notepadData is ArticleImage) {
                 repositoryForArticlesContent.deleteElement(notepadData)
             }
         }
@@ -67,6 +66,24 @@ class ArticleContentViewModelForParagraphs @Inject constructor(
      * Вызывает методы для запроса на сервер у всех классов-обработчиков элементов статьи.
      * */
     override fun makeRequestForElements(parentElementId: Int) {
-        notepadDataHandlerForContent.makeRequestForContentData(paragraphType, parentElementId)
+        notepadDataHandlerForContent.makeRequestForContentData(imageType, parentElementId)
+    }
+
+    /**
+     * Обновляет поле webViewHeight.
+     * */
+    fun updateWebViewHeight(webViewHeight: Int, articleImageId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repositoryForArticlesContent.updateWebViewHeight(webViewHeight, articleImageId)
+        }
+    }
+
+    /**
+     * Получает значение webViewHeight.
+     * */
+    fun getWebViewHeight(articleImageId: Int): Int {
+        return runBlocking {
+            repositoryForArticlesContent.getWebViewHeight(articleImageId)
+        }
     }
 }

@@ -4,13 +4,14 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
-import android.os.Build
 import androidx.lifecycle.MutableLiveData
 
 class InternetConnectionChecker(val context: Context) {
 
+    private var isInternetConnected: Boolean = false
+
     companion object {
-        var isInternetConnected: MutableLiveData<Boolean> = MutableLiveData()
+        var isInternetConnectedLiveData: MutableLiveData<Boolean> = MutableLiveData()
     }
 
     init {
@@ -21,12 +22,12 @@ class InternetConnectionChecker(val context: Context) {
         val networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                isInternetConnected.postValue(true)
+                handleNetworkStateChange(true)
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                isInternetConnected.postValue(false)
+                handleNetworkStateChange(false)
             }
         }
 
@@ -34,9 +35,16 @@ class InternetConnectionChecker(val context: Context) {
         getConnection()
     }
 
+    private fun handleNetworkStateChange(isInternetConnected: Boolean) {
+        if (isInternetConnected != this.isInternetConnected) {
+            isInternetConnectedLiveData.postValue(isInternetConnected)
+            this.isInternetConnected = isInternetConnected
+        }
+    }
+
     private fun getConnection() {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
-        isInternetConnected.postValue(networkInfo != null && networkInfo.isConnected)
+        isInternetConnectedLiveData.postValue(networkInfo != null && networkInfo.isConnected)
     }
 }

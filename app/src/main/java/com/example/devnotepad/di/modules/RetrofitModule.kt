@@ -25,6 +25,7 @@ class RetrofitModule {
             .registerSubtype(ArticleHeader::class.java, ArticleHeader::class.java.name)
             .registerSubtype(ArticleParagraph::class.java, ArticleParagraph::class.java.name)
             .registerSubtype(ArticleCodeSnippet::class.java, ArticleCodeSnippet::class.java.name)
+            .registerSubtype(ArticleImage::class.java, ArticleImage::class.java.name)
     }
 
     @Singleton

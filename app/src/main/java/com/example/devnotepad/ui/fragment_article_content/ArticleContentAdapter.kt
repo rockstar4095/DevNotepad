@@ -5,12 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.*
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.article_code_snippet_item.view.*
 import kotlinx.android.synthetic.main.article_header_item.view.*
+import kotlinx.android.synthetic.main.article_image_item.view.*
 import kotlinx.android.synthetic.main.article_paragraph_item.view.*
 
 class ArticleContentAdapter(
@@ -21,6 +24,7 @@ class ArticleContentAdapter(
         private const val headerType = 1
         private const val paragraphType = 2
         private const val codeSnippetType = 3
+        private const val imageType = 4
     }
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
@@ -49,6 +53,13 @@ class ArticleContentAdapter(
                     false
                 )
             )
+            imageType -> ArticleImageViewHolder(
+                inflater.inflate(
+                    R.layout.article_image_item,
+                    parent,
+                    false
+                )
+            )
             else -> throw IllegalArgumentException("Invalid view type.")
         }
     }
@@ -58,6 +69,7 @@ class ArticleContentAdapter(
             is ArticleHeader -> headerType
             is ArticleParagraph -> paragraphType
             is ArticleCodeSnippet -> codeSnippetType
+            is ArticleImage -> imageType
             else -> throw IllegalArgumentException("Invalid type of data $position.")
         }
     }
@@ -111,13 +123,39 @@ class ArticleContentAdapter(
         BaseViewHolder<ArticleCodeSnippet>(itemView) {
         private val webView: WebView = itemView.webView
         private val loadingPlaceholder: LinearLayout = itemView.loadingPlaceholder
-        private val noInternetConnectionPlaceholder: LinearLayout = itemView.noInternetConnectionPlaceholder
+        private val noInternetConnectionPlaceholder: LinearLayout =
+            itemView.noInternetConnectionPlaceholder
 
         override fun bind(item: ArticleCodeSnippet) {
+
+            /**TODO: avoid recreation here. Try to create this controller once.*/
             val codeSnippetController = CodeSnippetController(
-                item, webView, loadingPlaceholder, noInternetConnectionPlaceholder)
+                item,
+                webView,
+                loadingPlaceholder,
+                noInternetConnectionPlaceholder
+            )
+
+            println("debug: item.webViewHeight: ${item.webViewHeight}")
+            if (item.webViewHeight != 0 || item.webViewHeight != 1) {
+                webView.layoutParams.height = item.webViewHeight
+                loadingPlaceholder.layoutParams.height = item.webViewHeight
+                noInternetConnectionPlaceholder.layoutParams.height = item.webViewHeight
+            }
 
             codeSnippetController.loadCodeSnippet()
+        }
+    }
+
+    class ArticleImageViewHolder(itemView: View) :
+        BaseViewHolder<ArticleImage>(itemView) {
+        private val imageView: ImageView = itemView.imageView
+//        private val loadingPlaceholder: LinearLayout = itemView.loadingPlaceholder
+//        private val noInternetConnectionPlaceholder: LinearLayout =
+//            itemView.noInternetConnectionPlaceholder
+
+        override fun bind(item: ArticleImage) {
+            Picasso.get().load(item.url).into(imageView)
         }
     }
 
@@ -127,6 +165,7 @@ class ArticleContentAdapter(
             is ArticleHeaderViewHolder -> holder.bind(piece as ArticleHeader)
             is ArticleParagraphViewHolder -> holder.bind(piece as ArticleParagraph)
             is ArticleCodeSnippetViewHolder -> holder.bind(piece as ArticleCodeSnippet)
+            is ArticleImageViewHolder -> holder.bind(piece as ArticleImage)
             else -> throw IllegalArgumentException()
         }
     }

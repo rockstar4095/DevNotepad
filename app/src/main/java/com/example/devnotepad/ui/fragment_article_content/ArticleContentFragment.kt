@@ -2,11 +2,9 @@ package com.example.devnotepad.ui.fragment_article_content
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -17,7 +15,6 @@ import com.example.devnotepad.*
 import com.example.devnotepad.ui.ViewModelProviderFactory
 
 import com.example.devnotepad.ui.fragment_articles.ArticlesFragment
-import com.example.devnotepad.utils.InternetConnectionChecker
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
@@ -30,20 +27,20 @@ class ArticleContentFragment : DaggerFragment() {
         fun newInstance() = ArticleContentFragment()
         private const val RECYCLER_VIEW_CACHE_SIZE = 64
 
-        var wasFragmentPaused: MutableLiveData<Boolean> = MutableLiveData()
+        var wasFragmentAttached: MutableLiveData<Boolean> = MutableLiveData()
     }
 
-    private lateinit var viewModelForHeadersForHeaders: ArticleContentViewModelForHeaders
-    private lateinit var viewModelForHeadersForParagraphs: ArticleContentViewModelForParagraphs
-    private lateinit var viewModelForHeadersForCodeSnippets: ArticleContentViewModelForCodeSnippets
+    private lateinit var viewModelForHeaders: ArticleContentViewModelForHeaders
+    private lateinit var viewModelForParagraphs: ArticleContentViewModelForParagraphs
+    private lateinit var viewModelForCodeSnippets: ArticleContentViewModelForCodeSnippets
+    private lateinit var viewModelForImages: ArticleContentViewModelForImages
     private lateinit var adapter: ArticleContentAdapter
     private lateinit var gottenArticle: Article
     private lateinit var recyclerView: RecyclerView
 
-    /**
-     * Переменные для наблюдения и объединения разного вида контента.
-     * */
     private var articleContentMediator = MediatorLiveData<List<Any>>()
+    /**TODO: temp name*/
+    private val webViewsHashMapArrayList: ArrayList<HashMap<String, Int>> = ArrayList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,14 +58,17 @@ class ArticleContentFragment : DaggerFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModelForHeadersForHeaders = ViewModelProvider(this, viewModelProviderFactory)
+        viewModelForHeaders = ViewModelProvider(this, viewModelProviderFactory)
             .get(ArticleContentViewModelForHeaders::class.java)
 
-        viewModelForHeadersForParagraphs = ViewModelProvider(this, viewModelProviderFactory)
+        viewModelForParagraphs = ViewModelProvider(this, viewModelProviderFactory)
             .get(ArticleContentViewModelForParagraphs::class.java)
 
-        viewModelForHeadersForCodeSnippets = ViewModelProvider(this, viewModelProviderFactory)
+        viewModelForCodeSnippets = ViewModelProvider(this, viewModelProviderFactory)
             .get(ArticleContentViewModelForCodeSnippets::class.java)
+
+        viewModelForImages = ViewModelProvider(this, viewModelProviderFactory)
+            .get(ArticleContentViewModelForImages::class.java)
 
         adapter = ArticleContentAdapter(requireContext())
 
@@ -77,12 +77,14 @@ class ArticleContentFragment : DaggerFragment() {
         recyclerView.setItemViewCacheSize(RECYCLER_VIEW_CACHE_SIZE)
 
         // Запрос на сервер содержимого данной статьи.
-        viewModelForHeadersForHeaders.makeRequestForElements(gottenArticle.idFromServer)
-        viewModelForHeadersForParagraphs.makeRequestForElements(gottenArticle.idFromServer)
-        viewModelForHeadersForCodeSnippets.makeRequestForElements(gottenArticle.idFromServer)
+        viewModelForHeaders.makeRequestForElements(gottenArticle.idFromServer)
+        viewModelForParagraphs.makeRequestForElements(gottenArticle.idFromServer)
+        viewModelForCodeSnippets.makeRequestForElements(gottenArticle.idFromServer)
+        viewModelForImages.makeRequestForElements(gottenArticle.idFromServer)
 
         addSourcesToMediator()
         observeMediator()
+        observeWebViewsHeight()
     }
 
     /**
@@ -90,7 +92,7 @@ class ArticleContentFragment : DaggerFragment() {
      * Данные фильтруются из списка всех элементов по id статьи.
      * */
     private fun addSourcesToMediator() {
-        articleContentMediator.addSource(viewModelForHeadersForHeaders.allArticlesHeaders, Observer { allHeaders ->
+        articleContentMediator.addSource(viewModelForHeaders.allArticlesHeaders, Observer { allHeaders ->
             val filteredHeaders = ArrayList<ArticleHeader>()
             for (header in allHeaders) {
                 if (header.articleIdFromServer == gottenArticle.idFromServer) {
@@ -100,7 +102,7 @@ class ArticleContentFragment : DaggerFragment() {
             articleContentMediator.value = filteredHeaders
         })
 
-        articleContentMediator.addSource(viewModelForHeadersForParagraphs.allArticlesParagraphs, Observer { allParagraphs ->
+        articleContentMediator.addSource(viewModelForParagraphs.allArticlesParagraphs, Observer { allParagraphs ->
             val filteredParagraphs = ArrayList<ArticleParagraph>()
             for (paragraph in allParagraphs) {
                 if (paragraph.articleIdFromServer == gottenArticle.idFromServer) {
@@ -110,7 +112,7 @@ class ArticleContentFragment : DaggerFragment() {
             articleContentMediator.value = filteredParagraphs
         })
 
-        articleContentMediator.addSource(viewModelForHeadersForCodeSnippets.allArticlesCodeSnippets, Observer { allCodeSnippets ->
+        articleContentMediator.addSource(viewModelForCodeSnippets.allArticlesCodeSnippets, Observer { allCodeSnippets ->
             val filteredCodeSnippets = ArrayList<ArticleCodeSnippet>()
             for (codeSnippet in allCodeSnippets) {
                 if (codeSnippet.articleIdFromServer == gottenArticle.idFromServer) {
@@ -118,6 +120,16 @@ class ArticleContentFragment : DaggerFragment() {
                 }
             }
             articleContentMediator.value = filteredCodeSnippets
+        })
+
+        articleContentMediator.addSource(viewModelForImages.allArticlesImages, Observer { allImages ->
+            val filteredImages = ArrayList<ArticleImage>()
+            for (image in allImages) {
+                if (image.articleIdFromServer == gottenArticle.idFromServer) {
+                    filteredImages.add(image)
+                }
+            }
+            articleContentMediator.value = filteredImages
         })
     }
 
@@ -141,13 +153,32 @@ class ArticleContentFragment : DaggerFragment() {
         })
     }
 
-    override fun onDetach() {
-        super.onDetach()
-//        wasFragmentPaused.postValue(true)
+    private fun observeWebViewsHeight() {
+        CodeSnippetController.webViewHeightIdHashMap.observe(viewLifecycleOwner, Observer {
+            if (!webViewsHashMapArrayList.contains(it)) {
+                webViewsHashMapArrayList.add(it)
+            }
+        })
+    }
+
+    /**TODO: refactor*/
+    override fun onPause() {
+        super.onPause()
+        for (hashMap in webViewsHashMapArrayList) {
+            viewModelForCodeSnippets.updateWebViewHeight(
+                hashMap[CodeSnippetController.KEY_HEIGHT]!!,
+                hashMap[CodeSnippetController.KEY_ID]!!
+            )
+        }
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-//        wasFragmentPaused.postValue(false)
+        wasFragmentAttached.postValue(true)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        wasFragmentAttached.postValue(false)
     }
 }

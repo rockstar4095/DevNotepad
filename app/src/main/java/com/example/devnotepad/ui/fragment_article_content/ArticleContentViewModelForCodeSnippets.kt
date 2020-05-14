@@ -16,6 +16,7 @@ import com.example.devnotepad.data.data_handlers.NotepadViewModelContractForCont
 import com.example.devnotepad.data.repositories.ArticlesCodeSnippetsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.Retrofit
 import javax.inject.Inject
 
@@ -23,7 +24,7 @@ class ArticleContentViewModelForCodeSnippets @Inject constructor(
     application: Application
 ) : AndroidViewModel(application),
     NotepadViewModelContractForContent {
-    override val repositoryForArticlesContent: RepositoryContractForArticlesContent
+    override val repositoryForArticlesContent: ArticlesCodeSnippetsRepository
     val allArticlesCodeSnippets: LiveData<List<ArticleCodeSnippet>>
     private val devNotepadApi: DevNotepadApi
     private val notepadDataHandlerForContent: NotepadDataHandlerForContent
@@ -35,7 +36,6 @@ class ArticleContentViewModelForCodeSnippets @Inject constructor(
     init {
         val daggerAppComponent = BaseApplication.appComponent
         daggerAppComponent.inject(this)
-        println("debug: $daggerAppComponent")
 
         devNotepadApi = retrofit.create(DevNotepadApi::class.java)
 
@@ -69,5 +69,23 @@ class ArticleContentViewModelForCodeSnippets @Inject constructor(
      * */
     override fun makeRequestForElements(parentElementId: Int) {
         notepadDataHandlerForContent.makeRequestForContentData(codeSnippetType, parentElementId)
+    }
+
+    /**
+     * Обновляет поле webViewHeight.
+     * */
+    fun updateWebViewHeight(webViewHeight: Int, articleCodeSnippetId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repositoryForArticlesContent.updateWebViewHeight(webViewHeight, articleCodeSnippetId)
+        }
+    }
+
+    /**
+     * Получает значение webViewHeight.
+     * */
+    fun getWebViewHeight(articleCodeSnippetId: Int): Int {
+        return runBlocking {
+            repositoryForArticlesContent.getWebViewHeight(articleCodeSnippetId)
+        }
     }
 }

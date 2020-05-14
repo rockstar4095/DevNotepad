@@ -8,57 +8,57 @@ import android.view.animation.Transformation
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Button
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import com.example.devnotepad.ArticleCodeSnippet
 import com.example.devnotepad.utils.InternetConnectionChecker
-import kotlinx.android.synthetic.main.article_code_snippet_item.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.HashMap
 import kotlin.concurrent.schedule
 
 @SuppressLint("SetJavaScriptEnabled")
 class CodeSnippetController(
-    item: ArticleCodeSnippet,
+    private val item: ArticleCodeSnippet,
     private val webView: WebView,
     private val loadingPlaceholder: View,
     private val noInternetConnectionPlaceholder: View
 ) {
 
     private val url = item.getContentOfPiece()
-    private val tryAgainButton: Button = noInternetConnectionPlaceholder.tryAgainButton
+    private val heightIdHashMap: HashMap<String, Int> = HashMap()
 
     init {
-        tryAgainButton.setOnClickListener {
-            loadCodeSnippet()
-        }
-
         observeInternetConnection()
-        observeFragmentPaused()
+        observeFragmentAttached()
     }
 
     companion object {
+        const val KEY_ID = "id"
+        const val KEY_HEIGHT = "height"
 
+        private const val DELAY_BEFORE_PLACEHOLDERS_GONE: Long = 3000
         private const val DELAY_BEFORE_EXPANSION_STARTS: Long = 250
         private const val PLACEHOLDERS_HIDING_DURATION: Long = 150
         private const val EXPANSION_SPEED_COEFFICIENT = 4
-        var EXPANSION_DURATION: Long = 0
 
-        var isInternetConnected: Boolean = false
-        var wasLoadingStarted: Boolean = false
+        private var EXPANSION_DURATION: Long = 0
+        private var isInternetConnected: Boolean = false
+        private var wasFragmentAttached: Boolean = true
+
+        var webViewHeightIdHashMap: MutableLiveData<HashMap<String, Int>> = MutableLiveData()
     }
-    fun loadCodeSnippet() {
-        if (isInternetConnected && !wasLoadingStarted) {
 
+    fun loadCodeSnippet() {
+        prepareWebView()
+
+        if (isInternetConnected && wasFragmentAttached) {
             showLoadingPlaceholder()
             hideNoInternetConnectionPlaceholder()
-            prepareWebView()
             loadWebView()
-
         } else {
             showNoInternetConnectionPlaceholder()
         }
@@ -66,27 +66,18 @@ class CodeSnippetController(
 
     private fun loadWebView() {
         webView.loadUrl(url)
-
-        Timer().schedule(200) {
-            wasLoadingStarted = true
-        }
     }
 
     private fun observeInternetConnection() {
-        // создание объекта для работы
-        val internetConnectionChecker = InternetConnectionChecker(webView.context)
-        InternetConnectionChecker.isInternetConnected.observe(webView.context as LifecycleOwner, androidx.lifecycle.Observer {
+        InternetConnectionChecker.isInternetConnectedLiveData.observe(webView.context as LifecycleOwner, androidx.lifecycle.Observer {
             isInternetConnected = it
-            println("debug: хуесос isInternetConnected: $isInternetConnected onDetach: $wasLoadingStarted")
             loadCodeSnippet()
         })
     }
 
-    private fun observeFragmentPaused() {
-        ArticleContentFragment.wasFragmentPaused.observe(webView.context as LifecycleOwner, androidx.lifecycle.Observer {
-            wasLoadingStarted = it
-            println("debug: isInternetConnected: $isInternetConnected onDetach: $wasLoadingStarted")
-            loadCodeSnippet()
+    private fun observeFragmentAttached() {
+        ArticleContentFragment.wasFragmentAttached.observe(webView.context as LifecycleOwner, androidx.lifecycle.Observer {
+            wasFragmentAttached = it
         })
     }
 
@@ -95,7 +86,7 @@ class CodeSnippetController(
         webView.settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
         webView.setBackgroundColor(Color.TRANSPARENT)
 
-        /**TODO: implement OnTouchListener*/
+        /**TODO: implement OnTouchListener, make code cleaner.*/
 
 //            webView.setOnTouchListener(View.OnTouchListener { view, motionEvent ->
 //                when (motionEvent.touchMajor){
@@ -106,16 +97,35 @@ class CodeSnippetController(
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
-
-                Timer().schedule(DELAY_BEFORE_EXPANSION_STARTS) {
-                    expandView(webView)
-                }
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    webView.alpha = 0f
-                    webView.animate().alpha(1f).duration = PLACEHOLDERS_HIDING_DURATION * 12
-                }
+                showWebView()
+                hideLoadingPlaceholder()
+                saveWebViewHeight()
             }
+        }
+    }
+
+    private fun saveWebViewHeight() {
+        Timer().schedule(3000) {
+            val webViewMeasuredHeight = webView.measuredHeight
+
+            heightIdHashMap[KEY_ID] = item.idFromServer
+            heightIdHashMap[KEY_HEIGHT] = webViewMeasuredHeight
+
+            webViewHeightIdHashMap.postValue(heightIdHashMap)
+        }
+    }
+
+    private fun showWebView() {
+
+        Timer().schedule(DELAY_BEFORE_EXPANSION_STARTS) {
+            if (item.webViewHeight == 0 || item.webViewHeight == 1) {
+                expandView(webView)
+            }
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            webView.alpha = 0f
+            webView.animate().alpha(1f).duration = PLACEHOLDERS_HIDING_DURATION * 5
         }
     }
 
@@ -146,7 +156,6 @@ class CodeSnippetController(
         }
 
         animation.duration = EXPANSION_DURATION
-        hideLoadingPlaceholder()
         CoroutineScope(Dispatchers.Main).launch {
             viewToExpand.startAnimation(animation)
             parentView.startAnimation(animation)
@@ -162,7 +171,7 @@ class CodeSnippetController(
     }
 
     private fun hideLoadingPlaceholder() {
-        Timer().schedule(EXPANSION_DURATION) {
+        Timer().schedule(DELAY_BEFORE_PLACEHOLDERS_GONE) {
             CoroutineScope(Dispatchers.Main).launch {
                 loadingPlaceholder.visibility = View.GONE
             }
@@ -174,7 +183,7 @@ class CodeSnippetController(
     }
 
     private fun hideNoInternetConnectionPlaceholder() {
-        Timer().schedule(EXPANSION_DURATION) {
+        Timer().schedule(DELAY_BEFORE_PLACEHOLDERS_GONE) {
             CoroutineScope(Dispatchers.Main).launch {
                 noInternetConnectionPlaceholder.visibility = View.GONE
             }

@@ -67,6 +67,7 @@
         android:id="@+id/noInternetConnectionPlaceholder"
         android:layout_width="match_parent"
         android:layout_height="100dp"
+        android:background="@drawable/border"
         android:gravity="center|center_horizontal"
         android:orientation="vertical"
         android:visibility="gone"
@@ -89,10 +90,5 @@
             android:text="@string/unableToLoadCodeSnippet"
             android:textStyle="italic" />
 
-        <Button
-            android:id="@+id/tryAgainButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/tryAgain" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

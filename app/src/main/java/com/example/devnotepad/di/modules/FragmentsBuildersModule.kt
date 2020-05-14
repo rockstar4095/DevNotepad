@@ -30,7 +30,8 @@ abstract class FragmentsBuildersModule {
         modules = [
             ArticlesHeadersViewModelModule::class,
             ArticlesParagraphsViewModelModule::class,
-            ArticlesCodeSnippetsViewModelModule::class
+            ArticlesCodeSnippetsViewModelModule::class,
+            ArticlesImagesViewModelModule::class
         ]
     )
     abstract fun contributeArticlesContentFragment(): ArticleContentFragment
