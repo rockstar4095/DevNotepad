@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.article_header_item.view.*
 import kotlinx.android.synthetic.main.article_image_item.view.*
 import kotlinx.android.synthetic.main.article_paragraph_item.view.*
 
+// test
 class ArticleContentAdapter(
     context: Context
 ) : RecyclerView.Adapter<ArticleContentAdapter.BaseViewHolder<*>>() {
