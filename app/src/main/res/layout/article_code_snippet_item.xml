@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/webViewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -14,19 +14,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <WebView
-            android:id="@+id/webView"
+        <ViewStub
+            android:id="@+id/viewStub"
             android:layout_width="match_parent"
-            android:layout_height="1dp">
+            android:layout_height="1dp"
+            android:inflatedId="@+id/webView"
+            android:layout="@layout/code_snippet"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        </WebView>
+        <View
+            android:id="@+id/heightPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:id="@+id/loadingPlaceholder"
         android:layout_width="match_parent"
         android:layout_height="100dp"
+        android:background="@drawable/border"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:visibility="gone"

@@ -2,6 +2,7 @@ package com.example.devnotepad
 
 import com.example.devnotepad.di.AppComponent
 import com.example.devnotepad.di.DaggerAppComponent
+import com.example.devnotepad.utils.CSSCodeSource
 import com.example.devnotepad.utils.InternetConnectionChecker
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
@@ -11,17 +12,23 @@ class BaseApplication : DaggerApplication() {
     companion object {
         lateinit var baseApplication: BaseApplication
         lateinit var appComponent: AppComponent
+        lateinit var cssCodeSource: CSSCodeSource
     }
 
     override fun onCreate() {
         super.onCreate()
         baseApplication = this
         initializeAppComponent()
-        initializeInternetConnectionChecker()
+        registerNetworkStatusCallbacks()
+        initializeCSSCodeSource()
     }
 
-    private fun initializeInternetConnectionChecker() {
-        val internetConnectionChecker = InternetConnectionChecker(this)
+    private fun initializeCSSCodeSource() {
+        cssCodeSource = CSSCodeSource(this)
+    }
+
+    private fun registerNetworkStatusCallbacks() {
+        InternetConnectionChecker.registerNetworkCallbacks()
     }
 
     private fun initializeAppComponent() {

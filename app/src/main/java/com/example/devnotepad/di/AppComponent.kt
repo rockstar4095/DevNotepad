@@ -2,17 +2,12 @@ package com.example.devnotepad.di
 
 import android.app.Application
 import com.example.devnotepad.BaseApplication
+import com.example.devnotepad.data.repositories.*
 import com.example.devnotepad.di.modules.ActivityBuildersModule
 import com.example.devnotepad.di.modules.FragmentsBuildersModule
 import com.example.devnotepad.di.modules.RetrofitModule
 import com.example.devnotepad.di.modules.ViewModelFactoryModule
-import com.example.devnotepad.ui.fragment_article_content.ArticleContentViewModelForCodeSnippets
-import com.example.devnotepad.ui.fragment_article_content.ArticleContentViewModelForHeaders
-import com.example.devnotepad.ui.fragment_article_content.ArticleContentViewModelForImages
-import com.example.devnotepad.ui.fragment_article_content.ArticleContentViewModelForParagraphs
-import com.example.devnotepad.ui.fragment_articles.ArticlesViewModel
-import com.example.devnotepad.ui.fragment_directions.DirectionsViewModel
-import com.example.devnotepad.ui.fragment_topics.TopicsViewModel
+import com.example.devnotepad.utils.CSSCodeSource
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -40,11 +35,13 @@ interface AppComponent : AndroidInjector<BaseApplication> {
         fun build(): AppComponent
     }
 
-    fun inject(directionsViewModel: DirectionsViewModel)
-    fun inject(topicsViewModel: TopicsViewModel)
-    fun inject(articlesViewModel: ArticlesViewModel)
-    fun inject(articleContentViewModelForHeaders: ArticleContentViewModelForHeaders)
-    fun inject(articleContentViewModelForParagraphs: ArticleContentViewModelForParagraphs)
-    fun inject(articleContentViewModelForCodeSnippets: ArticleContentViewModelForCodeSnippets)
-    fun inject(articleContentViewModelForImages: ArticleContentViewModelForImages)
+    fun inject(directionsRepository: DirectionsRepository)
+    fun inject(topicsRepository: TopicsRepository)
+    fun inject(articlesRepository: ArticlesRepository)
+    fun inject(articlesHeadersRepository: ArticlesHeadersRepository)
+    fun inject(articlesParagraphsRepository: ArticlesParagraphsRepository)
+    fun inject(articlesCodeSnippetsRepository: ArticlesCodeSnippetsRepository)
+    fun inject(articlesImagesRepository: ArticlesImagesRepository)
+
+    fun inject(cssCodeSource: CSSCodeSource)
 }

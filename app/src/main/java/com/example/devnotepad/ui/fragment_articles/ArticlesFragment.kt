@@ -54,7 +54,7 @@ class ArticlesFragment : DaggerFragment(),
         articlesRecyclerView.adapter = adapter
         articlesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        viewModel.makeRequestForElements()
+        viewModel.repositoryForStructureData.makeRequestForElements()
         viewModel.allArticles.observe(viewLifecycleOwner, Observer { articles ->
             articles?.let { adapter.setArticles(sortArticlesByTopic(it)) }
         })
@@ -84,7 +84,8 @@ class ArticlesFragment : DaggerFragment(),
 
         activity?.supportFragmentManager?.beginTransaction()
             ?.setCustomAnimations(
-                R.anim.slide_in_from_right,
+//                R.anim.slide_in_from_right,
+                0,
                 R.anim.slide_out_to_left,
                 R.anim.slide_in_from_left,
                 R.anim.slide_out_to_right)

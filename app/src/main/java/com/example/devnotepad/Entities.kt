@@ -121,9 +121,22 @@ interface ArticlePiece {
     val positionInArticle: Int
 
     /**
-     * Метод возвращает содержимое элемента стати для установки в item recyclerView.
+     * Метод возвращает уникальное содержимое элемента статьи,
+     * которое несет в себе основную необходимую информацию.
      * */
-    fun getContentOfPiece(): String
+    fun getEssentialDataOfPiece(): String
+    override fun equals(other: Any?): Boolean
+}
+
+interface DynamicArticlePiece : ArticlePiece {
+
+    /**
+     * Хранит высоту элемента. Данные обновляются всякий раз после его загрузки.
+     * Данные о высоте элемента необходимы до момента его полной загрузки для того, чтобы установить
+     * высоту placeholder'а. Это способстувет лучшему виду статьи в момент загрузки элементов.
+     * */
+    val viewHeight: Int
+    val url: String
 }
 
 /**
@@ -143,16 +156,17 @@ class ArticleHeader(
     @SerializedName("time_when_data_changed")
     override val timeWhenDataChanged: Long
 ) : NotepadData, ArticlePiece {
-
-    override fun toString(): String {
-        return "idFromServer: ${this.idFromServer}\n" +
-                "articleIdFromServer: ${this.articleIdFromServer}\n" +
-                "positionInArticle: ${this.positionInArticle}\n" +
-                "header: ${this.header}"
+    override fun getEssentialDataOfPiece(): String {
+        return this.header
     }
 
-    override fun getContentOfPiece(): String {
-        return this.header
+    override fun equals(other: Any?): Boolean {
+        if (other is ArticleHeader && other.idFromServer == this.idFromServer) return true
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return idFromServer
     }
 }
 
@@ -173,9 +187,17 @@ class ArticleParagraph(
     @SerializedName("time_when_data_changed")
     override val timeWhenDataChanged: Long
 ) : NotepadData, ArticlePiece {
-
-    override fun getContentOfPiece(): String {
+    override fun getEssentialDataOfPiece(): String {
         return this.paragraph
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is ArticleParagraph && other.idFromServer == this.idFromServer) return true
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return idFromServer
     }
 }
 
@@ -188,15 +210,37 @@ class ArticleCodeSnippet(
     val articleIdFromServer: Int,
     @SerializedName("position_in_article")
     override val positionInArticle: Int,
-    val url: String,
+    override val url: String,
     @SerializedName("time_when_data_changed")
     override val timeWhenDataChanged: Long,
-    var webViewHeight: Int
-) : NotepadData, ArticlePiece {
-    override fun getContentOfPiece(): String {
-        return this.url
+    override val viewHeight: Int,
+    @SerializedName("code_source")
+    val codeSource: String
+) : NotepadData, DynamicArticlePiece {
+    override fun getEssentialDataOfPiece(): String {
+        return this.codeSource
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is ArticleCodeSnippet && other.idFromServer == this.idFromServer) return true
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return idFromServer
     }
 }
+
+/**
+ * Таблица с этой сущностью содержится в отдельной БД.
+ * */
+@Entity(tableName = "gist_css_style_table")
+class GistCSSStyle(
+    @PrimaryKey
+    val id: Int,
+    @SerializedName("gist_css_style")
+    val styleCode: String
+)
 
 @Entity(tableName = "articles_images_table")
 class ArticleImage(
@@ -207,12 +251,21 @@ class ArticleImage(
     val articleIdFromServer: Int,
     @SerializedName("position_in_article")
     override val positionInArticle: Int,
-    val url: String,
+    override val url: String,
     @SerializedName("time_when_data_changed")
     override val timeWhenDataChanged: Long,
-    var imageHeight: Int
-) : NotepadData, ArticlePiece {
-    override fun getContentOfPiece(): String {
+    override val viewHeight: Int
+) : NotepadData, DynamicArticlePiece {
+    override fun getEssentialDataOfPiece(): String {
         return this.url
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is ArticleImage && other.idFromServer == this.idFromServer) return true
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return idFromServer
     }
 }

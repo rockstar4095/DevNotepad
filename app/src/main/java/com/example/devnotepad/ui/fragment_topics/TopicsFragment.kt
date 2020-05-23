@@ -54,7 +54,7 @@ class TopicsFragment : DaggerFragment(),
         topicsRecyclerView.adapter = adapter
         topicsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        viewModel.makeRequestForElements()
+        viewModel.repositoryForStructureData.makeRequestForElements()
         viewModel.allTopics.observe(viewLifecycleOwner, Observer { topics ->
             topics?.let { adapter.setTopics(sortTopicsByDirection(it)) }
         })

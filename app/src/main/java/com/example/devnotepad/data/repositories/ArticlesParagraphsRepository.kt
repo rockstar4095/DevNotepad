@@ -2,8 +2,16 @@ package com.example.devnotepad.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.example.devnotepad.ArticleParagraph
+import com.example.devnotepad.BaseApplication
 import com.example.devnotepad.NotepadData
+import com.example.devnotepad.data.data_handlers.HandlerForContentData
 import com.example.devnotepad.data.local.ArticleParagraphDao
+import com.example.devnotepad.data.rest.DevNotepadApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import javax.inject.Inject
 
 /**
  * Репозиторий обрабатывает запросы к содержимому статей.
@@ -12,27 +20,67 @@ class ArticlesParagraphsRepository(
     private val articleParagraphDao: ArticleParagraphDao
 ) : RepositoryContractForArticlesContent {
 
-    val allArticlesParagraphs: LiveData<List<ArticleParagraph>> =
-        articleParagraphDao.getArticleParagraphs()
+    @Inject
+    lateinit var retrofit: Retrofit
+
+    private val devNotepadApi: DevNotepadApi
+    private val handlerForContentData: HandlerForContentData
 
     /**
-     * Синхронное получение списка параграфов.
+     * LiveData список для наблюдения из модели фрагмента.
      * */
+    var allArticlesParagraphs: LiveData<List<ArticleParagraph>> =
+        articleParagraphDao.getArticleParagraphs()
+
+    companion object {
+        public const val TYPE_PARAGRAPH = "paragraph"
+    }
+
+    init {
+        val daggerAppComponent = BaseApplication.appComponent
+        daggerAppComponent.inject(this)
+
+        devNotepadApi = retrofit.create(DevNotepadApi::class.java)
+
+        handlerForContentData =
+            HandlerForContentData(this, devNotepadApi)
+    }
+
+    override fun insertElement(notepadData: NotepadData) {
+        CoroutineScope(Dispatchers.IO).launch {
+            if (notepadData is ArticleParagraph) {
+                insertParagraph(notepadData)
+            }
+        }
+    }
+
+    override fun deleteElement(notepadData: NotepadData) {
+        CoroutineScope(Dispatchers.IO).launch {
+            if (notepadData is ArticleParagraph) {
+                deleteParagraph(notepadData)
+            }
+        }
+    }
+
+    override fun makeRequestForElements(parentElementId: Int) {
+        handlerForContentData.makeRequestForContentData(TYPE_PARAGRAPH, parentElementId)
+    }
+
     override suspend fun getAllElementsSync(parentIdFromServer: Int): List<NotepadData> {
         return articleParagraphDao.getArticleParagraphsSync(parentIdFromServer)
     }
 
     /**
-     * Вставляет параграф в БД с заменой содержимого, если он уже существует.
+     * Инкапсулированный метод для вставки.
      * */
-    override suspend fun insertElement(notepadData: NotepadData) {
-        articleParagraphDao.insertArticleParagraph(notepadData as ArticleParagraph)
+    private suspend fun insertParagraph(articleParagraph: ArticleParagraph) {
+        articleParagraphDao.insertArticleParagraph(articleParagraph)
     }
 
     /**
-     * Удаляет параграф из БД.
+     * Инкапсулированный метод для удаления.
      * */
-    override suspend fun deleteElement(notepadData: NotepadData) {
-        articleParagraphDao.deleteArticleParagraph(notepadData as ArticleParagraph)
+    private suspend fun deleteParagraph(articleParagraph: ArticleParagraph) {
+        articleParagraphDao.deleteArticleParagraph(articleParagraph)
     }
 }

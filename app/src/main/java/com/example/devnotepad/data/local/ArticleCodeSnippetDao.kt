@@ -39,12 +39,12 @@ interface ArticleCodeSnippetDao {
     /**
      * Обновляет поле webViewHeight.
      * */
-    @Query("UPDATE articles_code_snippets_table SET webViewHeight = :webViewHeight WHERE idFromServer = :articleCodeSnippetId")
+    @Query("UPDATE articles_code_snippets_table SET viewHeight = :webViewHeight WHERE idFromServer = :articleCodeSnippetId")
     suspend fun updateWebViewHeight(webViewHeight: Int, articleCodeSnippetId: Int)
 
     /**
      * Получает значение webViewHeight.
      * */
-    @Query("SELECT webViewHeight FROM articles_code_snippets_table WHERE idFromServer = :articleCodeSnippetId")
+    @Query("SELECT viewHeight FROM articles_code_snippets_table WHERE idFromServer = :articleCodeSnippetId")
     suspend fun getWebViewHeight(articleCodeSnippetId: Int): Int
 }

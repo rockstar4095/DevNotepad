@@ -4,10 +4,11 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebView
+import android.view.ViewStub
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.*
 import com.squareup.picasso.Picasso
@@ -15,8 +16,8 @@ import kotlinx.android.synthetic.main.article_code_snippet_item.view.*
 import kotlinx.android.synthetic.main.article_header_item.view.*
 import kotlinx.android.synthetic.main.article_image_item.view.*
 import kotlinx.android.synthetic.main.article_paragraph_item.view.*
+import kotlinx.coroutines.runBlocking
 
-// test
 class ArticleContentAdapter(
     context: Context
 ) : RecyclerView.Adapter<ArticleContentAdapter.BaseViewHolder<*>>() {
@@ -47,7 +48,7 @@ class ArticleContentAdapter(
                     false
                 )
             )
-            codeSnippetType -> ArticleCodeSnippetViewHolder(
+            codeSnippetType ->  ArticleCodeSnippetViewHolder(
                 inflater.inflate(
                     R.layout.article_code_snippet_item,
                     parent,
@@ -77,12 +78,13 @@ class ArticleContentAdapter(
 
     override fun getItemCount() = articlePieces.size
 
-    internal fun addArticlePieces(articlePieces: List<ArticlePiece>) {
+    fun addArticlePieces(articlePieces: List<ArticlePiece>) {
         this.articlePieces = getAllSortedPieces(this.articlePieces, articlePieces)
         notifyDataSetChanged()
     }
 
     /**
+     * TODO: refactor
      * Поскольку фрагмент устанавливает несколько источников информации, они добавляются поочередно.
      * Данный метод объединяет элементы статьи и сортирует их по позициям.
      * */
@@ -92,7 +94,13 @@ class ArticleContentAdapter(
     ): ArrayList<ArticlePiece> {
         val allSortedPieces = ArrayList<ArticlePiece>()
         allSortedPieces.addAll(formerPieces)
-        allSortedPieces.addAll(newPieces)
+
+        for (piece in newPieces) {
+            if (!allSortedPieces.contains(piece)) {
+                allSortedPieces.add(piece)
+            }
+        }
+
         allSortedPieces.sortBy { A -> A.positionInArticle }
         return allSortedPieces
     }
@@ -106,7 +114,7 @@ class ArticleContentAdapter(
         private val articleHeader: TextView = itemView.header
 
         override fun bind(item: ArticleHeader) {
-            articleHeader.text = item.getContentOfPiece()
+            articleHeader.text = item.getEssentialDataOfPiece()
         }
     }
 
@@ -115,36 +123,30 @@ class ArticleContentAdapter(
         private val articleParagraph: TextView = itemView.paragraph
 
         override fun bind(item: ArticleParagraph) {
-            val text = "\t ${item.getContentOfPiece()}"
+            val text = "\t ${item.getEssentialDataOfPiece()}"
             articleParagraph.text = text
         }
     }
 
     class ArticleCodeSnippetViewHolder(itemView: View) :
         BaseViewHolder<ArticleCodeSnippet>(itemView) {
-        private val webView: WebView = itemView.webView
+        private val viewStub: ViewStub = itemView.viewStub
         private val loadingPlaceholder: LinearLayout = itemView.loadingPlaceholder
+        private val webViewContainer: ConstraintLayout = itemView.webViewContainer
         private val noInternetConnectionPlaceholder: LinearLayout =
             itemView.noInternetConnectionPlaceholder
+        private val heightPlaceholder: View = itemView.heightPlaceholder
 
         override fun bind(item: ArticleCodeSnippet) {
 
             /**TODO: avoid recreation here. Try to create this controller once.*/
             val codeSnippetController = CodeSnippetController(
                 item,
-                webView,
+                viewStub,
                 loadingPlaceholder,
-                noInternetConnectionPlaceholder
+                noInternetConnectionPlaceholder,
+                heightPlaceholder
             )
-
-            println("debug: item.webViewHeight: ${item.webViewHeight}")
-            if (item.webViewHeight != 0 || item.webViewHeight != 1) {
-                webView.layoutParams.height = item.webViewHeight
-                loadingPlaceholder.layoutParams.height = item.webViewHeight
-                noInternetConnectionPlaceholder.layoutParams.height = item.webViewHeight
-            }
-
-            codeSnippetController.loadCodeSnippet()
         }
     }
 
@@ -169,5 +171,11 @@ class ArticleContentAdapter(
             is ArticleImageViewHolder -> holder.bind(piece as ArticleImage)
             else -> throw IllegalArgumentException()
         }
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+
+        println("debug: ADAPTER DETACHED")
     }
 }

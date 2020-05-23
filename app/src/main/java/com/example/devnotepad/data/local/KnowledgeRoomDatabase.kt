@@ -15,7 +15,7 @@ import com.example.devnotepad.*
         ArticleParagraph::class,
         ArticleCodeSnippet::class,
         ArticleImage::class
-    ], version = 6
+    ], version = 10
 )
 abstract class KnowledgeRoomDatabase : RoomDatabase() {
 

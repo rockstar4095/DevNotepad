@@ -47,16 +47,20 @@ class DirectionsFragment : DaggerFragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(DirectionsViewModel::class.java)
+        viewModel =
+            ViewModelProvider(this, viewModelProviderFactory).get(DirectionsViewModel::class.java)
 
         val adapter = DirectionsAdapter(requireContext(), this)
 
         directionsRecyclerView.adapter = adapter
         directionsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        viewModel.makeRequestForElements()
+        viewModel.repositoryForStructureData.makeRequestForElements()
         viewModel.allDirections.observe(viewLifecycleOwner, Observer { directions ->
-            directions?.let { adapter.setDirections(it) }
+            directions?.let {
+                adapter.setDirections(it)
+                println("debug: direction to set in adapter: $it")
+            }
         })
     }
 
@@ -72,7 +76,8 @@ class DirectionsFragment : DaggerFragment(),
                 R.anim.slide_in_from_right,
                 R.anim.slide_out_to_left,
                 R.anim.slide_in_from_left,
-                R.anim.slide_out_to_right)
+                R.anim.slide_out_to_right
+            )
 
             ?.replace(R.id.fragmentContainer, topicsFragment)
             ?.addToBackStack(null)

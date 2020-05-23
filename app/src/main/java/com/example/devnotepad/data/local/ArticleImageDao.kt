@@ -36,12 +36,12 @@ interface ArticleImageDao {
     /**
      * Обновляет поле webViewHeight.
      * */
-    @Query("UPDATE articles_images_table SET imageHeight = :webViewHeight WHERE idFromServer = :imageId")
+    @Query("UPDATE articles_images_table SET viewHeight = :webViewHeight WHERE idFromServer = :imageId")
     suspend fun updateWebViewHeight(webViewHeight: Int, imageId: Int)
 
     /**
      * Получает значение webViewHeight.
      * */
-    @Query("SELECT imageHeight FROM articles_images_table WHERE idFromServer = :imageId")
+    @Query("SELECT viewHeight FROM articles_images_table WHERE idFromServer = :imageId")
     suspend fun getWebViewHeight(imageId: Int): Int
 }

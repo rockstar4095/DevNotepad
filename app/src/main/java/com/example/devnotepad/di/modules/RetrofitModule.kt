@@ -6,9 +6,11 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -40,9 +42,19 @@ class RetrofitModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(gson: Gson): Retrofit {
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient().newBuilder()
+            .readTimeout(10, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl("https://xn--e1aabjrgcf6b.xn--p1ai/")
+            .client(okHttpClient)
             .addConverterFactory(ScalarsConverterFactory.create()) //important
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
