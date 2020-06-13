@@ -21,6 +21,7 @@ class HandlerForContentData(
 
     companion object {
         var wereCodeSnippetsLoadedLiveData = MutableLiveData<Boolean>()
+        var wereImagesLoadedLiveData = MutableLiveData<Boolean>()
         var wasBasicContentLoadedLiveData = MutableLiveData<Boolean>()
         var wereHeadersLoaded = false
         var wereParagraphsLoaded = false
@@ -51,11 +52,12 @@ class HandlerForContentData(
                     }
 
                     setBasicContentWasLoadedLiveData(elementType)
-                    setDynamicContentWasLoadedLiveData(elementType)
+                    setDynamicContentWasLoadedLiveData(elementType, true)
                 }
 
                 override fun onFailure(call: Call<List<NotepadData>>, t: Throwable) {
                     println("debug: getContentData: onFailure: $t")
+                    setDynamicContentWasLoadedLiveData(elementType, false)
                 }
             })
     }
@@ -83,9 +85,11 @@ class HandlerForContentData(
         }
     }
 
-    private fun setDynamicContentWasLoadedLiveData(elementType: String) {
+    private fun setDynamicContentWasLoadedLiveData(elementType: String, wasLoadedSuccessful: Boolean) {
         if (elementType == ArticlesCodeSnippetsRepository.TYPE_CODE_SNIPPET) {
-            wereCodeSnippetsLoadedLiveData.postValue(true)
+            wereCodeSnippetsLoadedLiveData.postValue(wasLoadedSuccessful)
+        } else if (elementType == ArticlesImagesRepository.TYPE_IMAGE) {
+            wereImagesLoadedLiveData.postValue(wasLoadedSuccessful)
         }
     }
 

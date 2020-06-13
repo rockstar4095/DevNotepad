@@ -2,18 +2,20 @@ package com.example.devnotepad.ui.fragment_article_content
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewStub
-import android.view.animation.Animation
-import android.view.animation.Transformation
-import android.webkit.*
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.widget.LinearLayout
+import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.example.devnotepad.ArticleCodeSnippet
 import com.example.devnotepad.BaseApplication
+import com.example.devnotepad.R
 import com.example.devnotepad.data.data_handlers.HandlerForContentData
-import com.example.devnotepad.utils.InternetConnectionChecker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,247 +24,261 @@ import kotlin.collections.HashMap
 import kotlin.concurrent.schedule
 
 /**TODO: refactor this class later...*/
+/**
+ * Класс контролирует логику установки и поведения элемента статьи типа CodeSnippet.
+ * Общее поведение динамических View наследуется от класса DynamicHeightViewsController.
+ * */
 @SuppressLint("SetJavaScriptEnabled")
 class CodeSnippetController(
     private val item: ArticleCodeSnippet,
     private var viewStub: ViewStub,
-    private val loadingPlaceholder: View,
-    private val noInternetConnectionPlaceholder: View,
-    private val heightPlaceholder: View
-) {
+    loadingPlaceholder: View,
+    noInternetConnectionPlaceholder: View,
+    heightPlaceholder: View
+) : DynamicHeightViewsController(
+    item,
+    loadingPlaceholder,
+    noInternetConnectionPlaceholder,
+    heightPlaceholder
+),
+    GestureDetector.OnGestureListener {
 
-    private val snippetContentCode = item.getEssentialDataOfPiece()
-    private val heightIdHashMap: HashMap<String, Int> = HashMap()
-    private var webView: View? = null
     private val viewsContext = heightPlaceholder.context
-    private var expansionDuration =
-        (item.viewHeight / viewsContext.resources.displayMetrics.density).toLong() *
-                EXPANSION_SPEED_COEFFICIENT
+    private val snippetContentCode = item.getEssentialDataOfPiece()
+    private var webViewParent: LinearLayout? = null
+    private var webView: View? = null
+    private val snippetsIdHeightHashMap: HashMap<String, Int> = HashMap()
+
+    private var mDetector: GestureDetectorCompat
+
+    private val onTouchListenerAllowInterception: View.OnTouchListener =
+        initOnTouchListenerAllowInterception()
+    private val onTouchListenerDisallowInterception: View.OnTouchListener =
+        initOnTouchListenerDisallowInterception()
 
     companion object {
+        private const val DELAY_TO_LET_CODE_SNIPPETS_CONTENT_BE_WRITTEN_IN_DB = 150L
         private const val DELAY_BEFORE_INFLATE_WEB_VIEW = 100L
-        private const val DELAY_BEFORE_PLACEHOLDERS_GONE = 3000L
-        private const val PLACEHOLDERS_HIDING_DURATION = 150L
+        private const val WEB_VIEW_SCROLLING_MODE_OFF = false
+        private const val WEB_VIEW_SCROLLING_MODE_ON = true
 
-        private const val EXPANSION_SPEED_COEFFICIENT = 2
-        private var isInternetConnected = false
-
-        var webViewHeightIdHashMap: MutableLiveData<HashMap<String, Int>> = MutableLiveData()
+        var webViewsHeightIdHashMap: MutableLiveData<HashMap<String, Int>> = MutableLiveData()
     }
 
     init {
         setPlaceholdersHeight()
         showLoadingPlaceholder()
-        observeInternetConnection()
-        observeWereCodeSnippetsLoaded()
+        observeWereElementsLoaded()
+
+        mDetector = GestureDetectorCompat(viewsContext, this)
     }
 
-    private fun setPlaceholdersHeight() {
-        if (item.viewHeight != 0) {
-            heightPlaceholder.layoutParams.height = item.viewHeight
-            loadingPlaceholder.layoutParams.height = item.viewHeight
-            noInternetConnectionPlaceholder.layoutParams.height = item.viewHeight
+    /**
+     * Инициализирует слушатель для webView, разрешающий перехват событий родительским элементом.
+     * */
+    private fun initOnTouchListenerAllowInterception(): View.OnTouchListener {
+        return View.OnTouchListener { _, event ->
+            mDetector.onTouchEvent(event)
+            webView!!.parent.parent.parent.requestDisallowInterceptTouchEvent(false)
+            false
         }
     }
 
-    private fun observeWereCodeSnippetsLoaded() {
-        HandlerForContentData.wereCodeSnippetsLoadedLiveData.observe(
-            viewsContext as LifecycleOwner,
-            androidx.lifecycle.Observer { wereCodeSnippetsLoaded ->
-                if (wereCodeSnippetsLoaded) {
-                    Timer().schedule(150) {
-                        inflateWebViewAfterTransitionAnimation()
-                    }
-
-                    removeObserverWereCodeSnippetsLoaded()
-                }
-            })
-    }
-
-    private fun removeObserverWereCodeSnippetsLoaded() {
-        CoroutineScope(Dispatchers.Main).launch {
-            HandlerForContentData.wereCodeSnippetsLoadedLiveData.removeObservers(viewsContext as LifecycleOwner)
+    /**
+     * Инициализирует слушатель для webView, запрещающий перехват событий родительским элементом.
+     * */
+    private fun initOnTouchListenerDisallowInterception(): View.OnTouchListener {
+        return View.OnTouchListener { _, event ->
+            mDetector.onTouchEvent(event)
+            webView!!.parent.parent.parent.requestDisallowInterceptTouchEvent(true)
+            false
         }
     }
 
-    private fun inflateWebViewAfterTransitionAnimation() {
+    /**
+     * Переключает слушатель событий на webView, разрешая или запрещая перехват событий
+     * родительским элементом.
+     * */
+    private fun switchWebViewScrollingMode(isWebViewScrollingModeOn: Boolean) {
+        if (isWebViewScrollingModeOn) {
+            webView!!.setOnTouchListener(onTouchListenerDisallowInterception)
+        } else {
+            webView!!.setOnTouchListener(onTouchListenerAllowInterception)
+        }
+    }
+
+    /**
+     * Поскольку раздутие webView замораживает главный поток, данное событие откладывается до
+     * момента, пока не завершится transition фрагмента с содержимым статьи.
+     * */
+    private fun inflateWebViewAfterFragmentTransitionAnimation() {
         Timer().schedule(DELAY_BEFORE_INFLATE_WEB_VIEW) {
             CoroutineScope(Dispatchers.Main).launch {
                 inflateWebView()
 
                 if (wasWebViewInflated()) {
-                    setWebViewSettings(webView as WebView)
-                    setCodeSnippetContent(webView as WebView)
+                    callNecessaryWebViewBehaviorAfterInflation(webView as WebView)
+                    hideLoadingPlaceholder()
+                    switchWebViewScrollingMode(WEB_VIEW_SCROLLING_MODE_ON)
                 }
             }
         }
     }
 
+    /**
+     * Раздувает webView. Вызывается после завершения transition фрагмента.
+     * */
     private fun inflateWebView() {
         if (viewStub.parent != null) {
-            webView = viewStub.inflate()
+            webViewParent = viewStub.inflate() as LinearLayout
+            webView = webViewParent!!.findViewById(R.id.webView)
         }
     }
 
+    /**
+     * Возвращает информацию о том, было ли раздуто webView, сравнивая ссылку в переменной с null.
+     * */
     private fun wasWebViewInflated(): Boolean {
         return webView != null
     }
 
+    /**
+     * Устанавливает необходимые настройки webView.
+     * */
     private fun setWebViewSettings(webView: WebView) {
         webView.settings.javaScriptEnabled = true
         webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
         webView.setBackgroundColor(Color.TRANSPARENT)
     }
 
-    private fun setCodeSnippetContent(webView: WebView) {
-        handleUsualScenario(webView)
-//        handleNoInternetConnectionAndEmptyDbScenario(webView)
-    }
-
-    private fun handleUsualScenario(webView: WebView) {
+    /**
+     * Вызывает необходимое поведение webView, после того, как оно было раздуто.
+     * */
+    private fun callNecessaryWebViewBehaviorAfterInflation(webView: WebView) {
+        setWebViewSettings(webView)
         setWebViewContent(webView)
         setWebViewStyle(webView)
-        showWebView(webView)
-        saveWebViewHeight(webView)
+        showView(webView)
+        saveViewHeight(webView)
     }
 
+    /**
+     * Устанавливает содержимое webView.
+     * */
     private fun setWebViewContent(webView: WebView) {
-        webView.loadUrl(formJSToApply(snippetContentCode))
+        webView.loadUrl(formJSToSetWebViewContent())
     }
 
-    private fun formJSToApply(snippetContentCode: String): String? {
+    /**
+     * Формирует JS код для применения на webView.
+     * */
+    private fun formJSToSetWebViewContent(): String? {
         return "javascript:$snippetContentCode;"
     }
 
     private fun setWebViewStyle(webView: WebView) {
-        BaseApplication.cssCodeSource.gistCSSStyleLiveData.observe(
+        webView.loadUrl(formCSSToSetWebViewStyle())
+    }
+
+    /**
+     * Получает CSS стиль для применения с webView.
+     * TODO: установить наблюдатель на тот случай, если таблица будет изначально пуста.
+     * */
+    private fun getCodeSnippetStyle(): String? {
+        return BaseApplication.cssCodeSource.gistCSSStyle.styleCode
+    }
+
+    /**
+     * Формирует CSS код для применения на webView.
+     * */
+    private fun formCSSToSetWebViewStyle(): String {
+        return "javascript:document.write('<style type=\"text/css\">${getCodeSnippetStyle()}</style>');"
+    }
+
+    override fun observeWereElementsLoaded() {
+        HandlerForContentData.wereCodeSnippetsLoadedLiveData.observe(
             viewsContext as LifecycleOwner,
-            androidx.lifecycle.Observer {
-                webView.loadUrl(
-                    "javascript:document.write('<style type=\"text/css\">" + it[0].styleCode + "</style>');"
-                )
-            })
-    }
-
-//    private fun handleNoInternetConnectionAndEmptyDbScenario(webView: WebView) {
-//        /**TODO: add empty DB check*/
-//        if (!isInternetConnected) {
-//            hideWebView(webView)
-//            showNoInternetConnectionPlaceholder()
-//        }
-//    }
-//
-//    private fun hideWebView(webView: WebView) {
-//        webView.visibility = View.GONE
-//    }
-
-    private fun observeInternetConnection() {
-        InternetConnectionChecker.isInternetConnectedLiveData.observe(
-            viewsContext as LifecycleOwner, androidx.lifecycle.Observer {
-                isInternetConnected = it
-            })
-    }
-
-    private fun showWebView(webView: WebView) {
-        hideLoadingPlaceholder()
-        expandWebView(webView, item.viewHeight)
-        webView.alpha = 0f
-        webView.animate().alpha(1f).duration = 300
-    }
-
-    private fun expandWebView(webView: WebView, targetHeight: Int) {
-        val parentView = webView.parent as View
-        val matchParentMeasureSpec =
-            View.MeasureSpec.makeMeasureSpec(parentView.width, View.MeasureSpec.EXACTLY)
-        val wrapContentMeasureSpec =
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        webView.measure(matchParentMeasureSpec, wrapContentMeasureSpec)
-
-        val animation = object : Animation() {
-            override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
-                webView.layoutParams.height = if (interpolatedTime == 1f) {
-                    ConstraintLayout.LayoutParams.WRAP_CONTENT
-                } else {
-                    (targetHeight * interpolatedTime).toInt()
+            androidx.lifecycle.Observer { wereCodeSnippetsLoaded ->
+                if (!wereCodeSnippetsLoaded) {
+                    // show "data from DB" message
                 }
 
-                webView.requestLayout()
-            }
+                Timer().schedule(DELAY_TO_LET_CODE_SNIPPETS_CONTENT_BE_WRITTEN_IN_DB) {
+                    inflateWebViewAfterFragmentTransitionAnimation()
+                }
 
-            override fun willChangeBounds(): Boolean {
-                return true
-            }
-        }
+                removeObserverWereElementsLoaded()
+            })
+    }
 
-        animation.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation?) {
-                // nothing to do
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                collapseHeightPlaceholder()
-                saveWebViewHeight(webView)
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-                // nothing to do
-            }
-        })
-
-        animation.duration = expansionDuration
+    override fun removeObserverWereElementsLoaded() {
         CoroutineScope(Dispatchers.Main).launch {
-            webView.startAnimation(animation)
+            HandlerForContentData.wereCodeSnippetsLoadedLiveData.removeObservers(viewsContext as LifecycleOwner)
         }
     }
 
-    private fun collapseHeightPlaceholder() {
-        heightPlaceholder.layoutParams.height = 0
-        heightPlaceholder.requestLayout()
-    }
-
-    private fun saveWebViewHeight(webView: WebView) {
+    override fun saveViewHeight(view: View) {
         Timer().schedule(1500) {
-            val webViewMeasuredHeight = webView.measuredHeight
-            println("debug: webViewMeasuredHeight = ${webView.measuredHeight} from controller")
+            val webViewMeasuredHeight = view.measuredHeight
+            println("debug: webViewMeasuredHeight = $webViewMeasuredHeight from controller")
 
-            heightIdHashMap[ArticleContentFragment.KEY_ID_FOR_DYNAMIC_VIEWS] = item.idFromServer
-            heightIdHashMap[ArticleContentFragment.KEY_HEIGHT_FOR_DYNAMIC_VIEWS] =
+            snippetsIdHeightHashMap[ArticleContentFragment.KEY_ID_FOR_DYNAMIC_VIEWS] =
+                item.idFromServer
+            snippetsIdHeightHashMap[ArticleContentFragment.KEY_HEIGHT_FOR_DYNAMIC_VIEWS] =
                 webViewMeasuredHeight
 
-            webViewHeightIdHashMap.postValue(heightIdHashMap)
+            webViewsHeightIdHashMap.postValue(snippetsIdHeightHashMap)
         }
     }
 
-    private fun showLoadingPlaceholder() {
-        loadingPlaceholder.visibility = View.VISIBLE
+    /*
+    * Используется для корректной прокрутки RecyclerView. Если не использовать данное событие,
+    * RecyclerView будет игнорировать прокрутку, при возникновении события прокрутки на CodeSnippet.
+    * */
+    override fun onDown(e: MotionEvent?): Boolean {
+        switchWebViewScrollingMode(WEB_VIEW_SCROLLING_MODE_OFF)
+        return true
     }
 
-//    private fun showNoInternetConnectionPlaceholder() {
-//        noInternetConnectionPlaceholder.visibility = View.VISIBLE
-//    }
-
-    private fun hideLoadingPlaceholder() {
-        Timer().schedule(DELAY_BEFORE_PLACEHOLDERS_GONE) {
-            CoroutineScope(Dispatchers.Main).launch {
-                loadingPlaceholder.visibility = View.GONE
-            }
+    /*
+    * При возникновении события прокрутки на CodeSnippet, в том случае, если была зарегистрирована
+    * горизонтальная прокрутка, будет проигнорирована прокрутка RecyclerView.
+    * */
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        if (distanceX != 0f) {
+            switchWebViewScrollingMode(WEB_VIEW_SCROLLING_MODE_ON)
         }
-
-        CoroutineScope(Dispatchers.Main).launch {
-            loadingPlaceholder.animate().alpha(0f).duration = PLACEHOLDERS_HIDING_DURATION
-        }
+        return true
     }
-//
-//    private fun hideNoInternetConnectionPlaceholder() {
-//        Timer().schedule(DELAY_BEFORE_PLACEHOLDERS_GONE) {
-//            CoroutineScope(Dispatchers.Main).launch {
-//                noInternetConnectionPlaceholder.visibility = View.GONE
-//            }
-//        }
-//
-//        CoroutineScope(Dispatchers.Main).launch {
-//            noInternetConnectionPlaceholder.animate().alpha(0f).duration =
-//                PLACEHOLDERS_HIDING_DURATION
-//        }
-//    }
+
+    /*
+    * I don't use following motion events on my CodeSnippets.
+    * */
+    override fun onShowPress(e: MotionEvent?) {
+        // do nothing
+    }
+
+    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+        // do nothing
+        return false
+    }
+
+    override fun onFling(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        // do nothing
+        return false
+    }
+
+    override fun onLongPress(e: MotionEvent?) {
+        // do nothing
+    }
 }

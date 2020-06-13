@@ -26,7 +26,7 @@ class ArticlesCodeSnippetsRepository(
     lateinit var retrofit: Retrofit
 
     private val devNotepadApi: DevNotepadApi
-    val handlerForContentData: HandlerForContentData
+    private val handlerForContentData: HandlerForContentData
 
     /**
      * LiveData список направлений для наблюдения из модели фрагмента.

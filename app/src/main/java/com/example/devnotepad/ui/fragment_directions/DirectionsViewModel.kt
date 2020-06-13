@@ -1,10 +1,12 @@
 package com.example.devnotepad.ui.fragment_directions
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.example.devnotepad.DirectionOfStudy
-import com.example.devnotepad.data.repositories.DirectionsRepository
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
+import com.example.devnotepad.data.repositories.DirectionsRepository
 import javax.inject.Inject
 
 class DirectionsViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {

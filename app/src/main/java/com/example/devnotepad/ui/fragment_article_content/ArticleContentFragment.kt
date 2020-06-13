@@ -5,15 +5,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.*
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.*
-import com.example.devnotepad.R
 import com.example.devnotepad.data.data_handlers.HandlerForContentData
 import com.example.devnotepad.ui.ViewModelProviderFactory
-
 import com.example.devnotepad.ui.fragment_articles.ArticlesFragment
 import com.example.devnotepad.utils.InternetConnectionChecker
 import dagger.android.support.DaggerFragment
@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.concurrent.schedule
 
 class ArticleContentFragment : DaggerFragment() {
@@ -52,6 +51,7 @@ class ArticleContentFragment : DaggerFragment() {
 
     /**TODO: temp name*/
     private val webViewsHashMapArrayList: ArrayList<HashMap<String, Int>> = ArrayList()
+    private val imagesHashMapArrayList: ArrayList<HashMap<String, Int>> = ArrayList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -141,7 +141,7 @@ class ArticleContentFragment : DaggerFragment() {
         articleContentMediator.removeSource(viewModelForParagraphs.allArticlesParagraphs)
         articleContentMediator.removeSource(viewModelForCodeSnippets.allArticlesCodeSnippets)
         articleContentMediator.removeSource(viewModelForImages.allArticlesImages)
-        CodeSnippetController.webViewHeightIdHashMap.removeObservers(this)
+        CodeSnippetController.webViewsHeightIdHashMap.removeObservers(this)
     }
 
     /**
@@ -213,10 +213,17 @@ class ArticleContentFragment : DaggerFragment() {
     }
 
     private fun observeDynamicViewsHeight() {
-        CodeSnippetController.webViewHeightIdHashMap.observe(viewLifecycleOwner, Observer {
+        CodeSnippetController.webViewsHeightIdHashMap.observe(viewLifecycleOwner, Observer {
             if (!webViewsHashMapArrayList.contains(it)) {
                 println("debug: observeDynamicViewsHeight: height was added")
                 webViewsHashMapArrayList.add(it)
+            }
+        })
+
+        ImageController.imagesHeightIdHashMap.observe(viewLifecycleOwner, Observer {
+            if (!imagesHashMapArrayList.contains(it)) {
+                println("debug: observeDynamicViewsHeight: height was added")
+                imagesHashMapArrayList.add(it)
             }
         })
     }
@@ -246,6 +253,15 @@ class ArticleContentFragment : DaggerFragment() {
     private fun updateDynamicViewsHeight() {
         for (hashMap in webViewsHashMapArrayList) {
             viewModelForCodeSnippets.updateViewHeight(
+                hashMap[KEY_HEIGHT_FOR_DYNAMIC_VIEWS]!!,
+                hashMap[KEY_ID_FOR_DYNAMIC_VIEWS]!!
+            )
+
+            println("debug: webViewMeasuredHeight = ${hashMap[KEY_HEIGHT_FOR_DYNAMIC_VIEWS]!!} from fragment")
+        }
+
+        for (hashMap in imagesHashMapArrayList) {
+            viewModelForImages.updateViewHeight(
                 hashMap[KEY_HEIGHT_FOR_DYNAMIC_VIEWS]!!,
                 hashMap[KEY_ID_FOR_DYNAMIC_VIEWS]!!
             )

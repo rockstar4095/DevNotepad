@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.example.devnotepad.ArticleHeader
-import com.example.devnotepad.data.repositories.ArticlesHeadersRepository
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
+import com.example.devnotepad.data.repositories.ArticlesHeadersRepository
 import javax.inject.Inject
 
 class ArticleContentViewModelForHeaders @Inject constructor(

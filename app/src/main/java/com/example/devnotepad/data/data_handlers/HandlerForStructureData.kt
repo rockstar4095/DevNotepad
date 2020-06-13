@@ -1,6 +1,6 @@
 package com.example.devnotepad.data.data_handlers
 
-import com.example.devnotepad.*
+import com.example.devnotepad.NotepadData
 import com.example.devnotepad.data.repositories.RepositoryContractForStructureData
 import com.example.devnotepad.data.rest.DevNotepadApi
 import kotlinx.coroutines.CoroutineScope

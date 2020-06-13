@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.example.devnotepad.Topic
-import com.example.devnotepad.data.repositories.TopicsRepository
 import com.example.devnotepad.data.local.KnowledgeRoomDatabase
+import com.example.devnotepad.data.repositories.TopicsRepository
 import javax.inject.Inject
 
 class TopicsViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {

@@ -16,15 +16,15 @@
 
         <ViewStub
             android:id="@+id/viewStub"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:inflatedId="@+id/webView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout="@layout/code_snippet"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
-            android:id="@+id/heightPlaceholder"
+            android:id="@+id/heightPlaceholderForCodeSnippet"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -33,10 +33,9 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
-        android:id="@+id/loadingPlaceholder"
+        android:id="@+id/loadingPlaceholderForCodeSnippet"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="@drawable/border"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:visibility="gone"
@@ -74,10 +73,10 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/noInternetConnectionPlaceholder"
+        android:id="@+id/noInternetConnectionPlaceholderForCodeSnippet"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="@drawable/border"
+        android:background="@drawable/gray_border_8dp_margin"
         android:gravity="center|center_horizontal"
         android:orientation="vertical"
         android:visibility="gone"

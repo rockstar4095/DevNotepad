@@ -11,9 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
-import java.util.*
 import javax.inject.Inject
-import kotlin.concurrent.schedule
 
 class DirectionsRepository(private val directionDao: DirectionDao) :
     RepositoryContractForStructureData {

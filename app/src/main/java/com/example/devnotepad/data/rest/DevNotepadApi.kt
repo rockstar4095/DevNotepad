@@ -1,6 +1,7 @@
 package com.example.devnotepad.data.rest
 
-import com.example.devnotepad.*
+import com.example.devnotepad.GistCSSStyle
+import com.example.devnotepad.NotepadData
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query

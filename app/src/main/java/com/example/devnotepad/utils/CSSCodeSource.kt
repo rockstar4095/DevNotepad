@@ -9,6 +9,7 @@ import com.example.devnotepad.data.rest.DevNotepadApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,7 +24,8 @@ class CSSCodeSource(application: Application) {
     private val devNotepadApi: DevNotepadApi
     private val gistCSSStyleDao =
         GistCSSStyleRoomDatabase.getDatabase(application).gistCSSStyleDao()
-    public var gistCSSStyleLiveData: LiveData<List<GistCSSStyle>>
+    var gistCSSStyleLiveData: LiveData<List<GistCSSStyle>>
+    val gistCSSStyle: GistCSSStyle
 
     companion object {
         private const val NO_CHANGES_CODE = "0"
@@ -39,10 +41,14 @@ class CSSCodeSource(application: Application) {
         devNotepadApi = retrofit.create(DevNotepadApi::class.java)
 
         gistCSSStyleLiveData = getCSSStyle()
+        gistCSSStyle = getGistCSSStyleSync()
 
         makeRequestForNewVersionOfCode()
     }
 
+    private fun getGistCSSStyleSync() = runBlocking {
+        gistCSSStyleDao.getCSSStyleSync()
+    }
 
     private fun getCSSStyle(): LiveData<List<GistCSSStyle>> {
         return gistCSSStyleDao.getCSSStyle()

@@ -1,7 +1,6 @@
 package com.example.devnotepad.ui.fragment_articles
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,12 +8,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.devnotepad.Article
-
 import com.example.devnotepad.R
 import com.example.devnotepad.StructureData
 import com.example.devnotepad.ui.OnItemClickListener
 import com.example.devnotepad.ui.ViewModelProviderFactory
-import com.example.devnotepad.ui.fragment_article_content.ArticleContentFragment
 import com.example.devnotepad.ui.fragment_topics.TopicsFragment
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.articles_fragment.*
@@ -75,27 +72,27 @@ class ArticlesFragment : DaggerFragment(),
         return sortedArticles
     }
 
-    private fun openArticleContentFragment(article: Article) {
-        val articleContentFragment: Fragment = ArticleContentFragment()
-
-        val bundle = Bundle()
-        bundle.putParcelable(articleKey, article)
-        articleContentFragment.arguments = bundle
-
-        activity?.supportFragmentManager?.beginTransaction()
-            ?.setCustomAnimations(
-//                R.anim.slide_in_from_right,
-                0,
-                R.anim.slide_out_to_left,
-                R.anim.slide_in_from_left,
-                R.anim.slide_out_to_right)
-
-            ?.replace(R.id.fragmentContainer, articleContentFragment)
-            ?.addToBackStack(null)
-            ?.commit()
-    }
+//    private fun openArticleContentFragment(article: Article) {
+//        val articleContentFragment: Fragment = ArticleContentFragment()
+//
+//        val bundle = Bundle()
+//        bundle.putParcelable(articleKey, article)
+//        articleContentFragment.arguments = bundle
+//
+//        activity?.supportFragmentManager?.beginTransaction()
+//            ?.setCustomAnimations(
+////                R.anim.slide_in_from_right,
+//                0,
+//                R.anim.slide_out_to_left,
+//                R.anim.slide_in_from_left,
+//                R.anim.slide_out_to_right)
+//
+//            ?.replace(R.id.fragmentContainer, articleContentFragment)
+//            ?.addToBackStack(null)
+//            ?.commit()
+//    }
 
     override fun onItemClick(structureData: StructureData) {
-        openArticleContentFragment(structureData as Article)
+//        openArticleContentFragment(structureData as Article)
     }
 }

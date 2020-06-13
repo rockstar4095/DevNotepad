@@ -2,7 +2,6 @@ package com.example.devnotepad
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.webkit.WebView
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName

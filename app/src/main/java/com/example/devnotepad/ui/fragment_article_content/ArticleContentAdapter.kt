@@ -8,15 +8,12 @@ import android.view.ViewStub
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.devnotepad.*
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.article_code_snippet_item.view.*
 import kotlinx.android.synthetic.main.article_header_item.view.*
 import kotlinx.android.synthetic.main.article_image_item.view.*
 import kotlinx.android.synthetic.main.article_paragraph_item.view.*
-import kotlinx.coroutines.runBlocking
 
 class ArticleContentAdapter(
     context: Context
@@ -123,7 +120,7 @@ class ArticleContentAdapter(
         private val articleParagraph: TextView = itemView.paragraph
 
         override fun bind(item: ArticleParagraph) {
-            val text = "\t ${item.getEssentialDataOfPiece()}"
+            val text = item.getEssentialDataOfPiece()
             articleParagraph.text = text
         }
     }
@@ -131,16 +128,15 @@ class ArticleContentAdapter(
     class ArticleCodeSnippetViewHolder(itemView: View) :
         BaseViewHolder<ArticleCodeSnippet>(itemView) {
         private val viewStub: ViewStub = itemView.viewStub
-        private val loadingPlaceholder: LinearLayout = itemView.loadingPlaceholder
-        private val webViewContainer: ConstraintLayout = itemView.webViewContainer
+        private val loadingPlaceholder: LinearLayout = itemView.loadingPlaceholderForCodeSnippet
         private val noInternetConnectionPlaceholder: LinearLayout =
-            itemView.noInternetConnectionPlaceholder
-        private val heightPlaceholder: View = itemView.heightPlaceholder
+            itemView.noInternetConnectionPlaceholderForCodeSnippet
+        private val heightPlaceholder: View = itemView.heightPlaceholderForCodeSnippet
 
         override fun bind(item: ArticleCodeSnippet) {
 
             /**TODO: avoid recreation here. Try to create this controller once.*/
-            val codeSnippetController = CodeSnippetController(
+            CodeSnippetController(
                 item,
                 viewStub,
                 loadingPlaceholder,
@@ -152,13 +148,21 @@ class ArticleContentAdapter(
 
     class ArticleImageViewHolder(itemView: View) :
         BaseViewHolder<ArticleImage>(itemView) {
-        private val imageView: ImageView = itemView.imageView
-//        private val loadingPlaceholder: LinearLayout = itemView.loadingPlaceholder
-//        private val noInternetConnectionPlaceholder: LinearLayout =
-//            itemView.noInternetConnectionPlaceholder
+        private val image: ImageView = itemView.image
+        private val loadingPlaceholder: LinearLayout = itemView.loadingPlaceholderForImage
+        private val noInternetConnectionPlaceholder: LinearLayout =
+            itemView.noInternetConnectionPlaceholderForImage
+        private val heightPlaceholder: View = itemView.heightPlaceholderForImage
+
 
         override fun bind(item: ArticleImage) {
-            Picasso.get().load(item.url).into(imageView)
+            ImageController(
+                item,
+                image,
+                loadingPlaceholder,
+                noInternetConnectionPlaceholder,
+                heightPlaceholder
+            )
         }
     }
 
