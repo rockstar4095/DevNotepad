@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import ru.devnotepad.articlecontent.adapters.ArticleContentAdapter
+import androidx.lifecycle.observe
+import androidx.recyclerview.widget.LinearLayoutManager
+import ru.devnotepad.articlecontent.adapters.ArticlePiecesAdapter
 import ru.devnotepad.articlecontent.databinding.ArticleContentFragmentBinding
+import ru.devnotepad.articlecontent.entities.ArticlePiece
 
 class ArticleContentFragment : Fragment() {
 
@@ -17,10 +19,10 @@ class ArticleContentFragment : Fragment() {
 
     // TODO: create factory for viewModel.
     // TODO: viewModel should be initialized with articleId as a parameter.
-    private val viewModel: ArticleContentViewModel by viewModels()
+    private lateinit var viewModel: ArticleContentViewModel
     private lateinit var binding: ArticleContentFragmentBinding
     private val articleContentAdapter by lazy {
-        ArticleContentAdapter(requireContext())
+        ArticlePiecesAdapter(requireContext())
     }
 
     override fun onCreateView(
@@ -32,7 +34,23 @@ class ArticleContentFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ArticleContentViewModel(requireActivity().application)
+        initRecycler()
+        observeViewModel()
+    }
 
+    private fun initRecycler() {
+        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.adapter = articleContentAdapter
+    }
 
+    private fun observeViewModel() = with(viewModel) {
+        articlePiecesLiveData.observe(viewLifecycleOwner) {
+            populateArticleContentAdapter(it)
+        }
+    }
+
+    private fun populateArticleContentAdapter(articlePieces: List<ArticlePiece>) {
+        articleContentAdapter.setArticlePieces(articlePieces)
     }
 }

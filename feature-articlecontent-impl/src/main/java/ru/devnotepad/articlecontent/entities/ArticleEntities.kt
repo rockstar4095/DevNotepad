@@ -64,6 +64,10 @@ data class ArticleHeader(
     override fun getEssentialDataOfPiece(): String {
         return this.header
     }
+
+    companion object {
+        const val VIEW_TYPE = 1
+    }
 }
 
 /**
@@ -86,6 +90,10 @@ data class ArticleParagraph(
     override fun getEssentialDataOfPiece(): String {
         return this.paragraph
     }
+
+    companion object {
+        const val VIEW_TYPE = 2
+    }
 }
 
 @Entity(tableName = "articles_code_snippets_table")
@@ -106,6 +114,10 @@ data class ArticleCodeSnippet(
 ) : DynamicArticlePiece() {
     override fun getEssentialDataOfPiece(): String {
         return this.codeSource
+    }
+
+    companion object {
+        const val VIEW_TYPE = 3
     }
 }
 
@@ -136,5 +148,9 @@ data class ArticleImage(
 ) : DynamicArticlePiece() {
     override fun getEssentialDataOfPiece(): String {
         return this.url
+    }
+
+    companion object {
+        const val VIEW_TYPE = 4
     }
 }
