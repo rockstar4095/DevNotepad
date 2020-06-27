@@ -10,7 +10,7 @@ class ArticleHeaderViewHolder(
 
     private val headerTextView: TextView = binding.header
 
-    override fun bindItem(item: ArticleHeader) {
-        headerTextView.text = item.getEssentialDataOfPiece()
+    override fun bindPieceItem(pieceItem: ArticleHeader) {
+        headerTextView.text = pieceItem.getEssentialDataOfPiece()
     }
 }

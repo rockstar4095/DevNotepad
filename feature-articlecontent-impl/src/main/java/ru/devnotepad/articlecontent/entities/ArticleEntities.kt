@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-
 /**
  * Объединяет сущности, которые созданы для отображения содержимого статей.
  * Объявляет общие поля и классы для работы с сущностями.
@@ -24,6 +23,9 @@ abstract class ArticlePiece {
      * */
     abstract fun getEssentialDataOfPiece(): String
 
+    /**
+     * TODO: warning: doubtful decision to implement this methods as final here.
+     * */
     final override fun equals(other: Any?): Boolean {
         return (other is ArticlePiece && other.idFromServer == this.idFromServer)
     }
