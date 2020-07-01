@@ -1,17 +1,26 @@
-package ru.devnotepad.articlecontent.data.local
+package ru.devnotepad.articlecontent.data
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import retrofit2.Retrofit
+import ru.devnotepad.articlecontent.data.local.ArticleCodeSnippetDao
+import ru.devnotepad.articlecontent.data.local.ArticleHeaderDao
+import ru.devnotepad.articlecontent.data.local.ArticleImageDao
+import ru.devnotepad.articlecontent.data.local.ArticleParagraphDao
 import ru.devnotepad.articlecontent.entities.ArticlePiece
 import java.util.*
+import javax.inject.Inject
 
-class ArticleContentRepository(
+class ArticleContentRepository @Inject constructor(
     private val articleHeaderDao: ArticleHeaderDao,
     private val articleParagraphDao: ArticleParagraphDao,
     private val articleCodeSnippetDao: ArticleCodeSnippetDao,
-    private val articleImageDao: ArticleImageDao
+    private val articleImageDao: ArticleImageDao,
+    val retrofit: Retrofit
 ) {
 
-    var articlePiecesMediator = MediatorLiveData<List<ArticlePiece>>()
+    private val articlePiecesMediator = MediatorLiveData<List<ArticlePiece>>()
+    val articlePieces: LiveData<List<ArticlePiece>> get() = articlePiecesMediator
 
     init {
         addSourcesToArticlePiecesMediator()
@@ -46,7 +55,7 @@ class ArticleContentRepository(
     private fun getFilteredPieces(pieces: List<ArticlePiece>): ArrayList<ArticlePiece> {
         val filteredPieces = ArrayList<ArticlePiece>()
         for (piece in pieces) {
-            if (piece.idFromServer == TEMP_ARTICLE_ID) {
+            if (piece.articleIdFromServer == TEMP_ARTICLE_ID) {
                 filteredPieces.add(piece)
             }
         }

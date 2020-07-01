@@ -14,6 +14,7 @@ abstract class ArticlePiece {
      * отображения содержимого.
      * */
     abstract val idFromServer: Int
+    abstract val articleIdFromServer: Int
     abstract val positionInArticle: Int
     abstract val timeWhenDataChanged: Long
 
@@ -56,7 +57,7 @@ data class ArticleHeader(
     @SerializedName("id")
     override val idFromServer: Int,
     @SerializedName("article_id")
-    val articleIdFromServer: Int,
+    override val articleIdFromServer: Int,
     @SerializedName("position_in_article")
     override val positionInArticle: Int,
     val header: String,
@@ -82,7 +83,7 @@ data class ArticleParagraph(
     @SerializedName("id")
     override val idFromServer: Int,
     @SerializedName("article_id")
-    val articleIdFromServer: Int,
+    override val articleIdFromServer: Int,
     @SerializedName("position_in_article")
     override val positionInArticle: Int,
     val paragraph: String,
@@ -104,7 +105,7 @@ data class ArticleCodeSnippet(
     @SerializedName("id")
     override val idFromServer: Int,
     @SerializedName("article_id")
-    val articleIdFromServer: Int,
+    override val articleIdFromServer: Int,
     @SerializedName("position_in_article")
     override val positionInArticle: Int,
     override val url: String,
@@ -140,7 +141,7 @@ data class ArticleImage(
     @SerializedName("id")
     override val idFromServer: Int,
     @SerializedName("article_id")
-    val articleIdFromServer: Int,
+    override val articleIdFromServer: Int,
     @SerializedName("position_in_article")
     override val positionInArticle: Int,
     override val url: String,

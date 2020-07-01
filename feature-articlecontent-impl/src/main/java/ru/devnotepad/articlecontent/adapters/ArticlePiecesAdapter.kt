@@ -16,10 +16,7 @@ class ArticlePiecesAdapter(context: Context) : RecyclerView.Adapter<ArticlePiece
     private var articlePieces = ArrayList<ArticlePiece>()
 
     fun setArticlePieces(articlePieces: List<ArticlePiece>) {
-        this.articlePieces.apply {
-            clear()
-            addAll(articlePieces)
-        }
+        this.articlePieces.addAll(articlePieces)
 
         notifyDataSetChanged()
     }
