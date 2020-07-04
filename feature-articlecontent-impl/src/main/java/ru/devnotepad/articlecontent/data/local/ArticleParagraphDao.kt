@@ -7,8 +7,8 @@ import ru.devnotepad.articlecontent.entities.ArticleParagraph
 @Dao
 interface ArticleParagraphDao {
 
-    @Query("SELECT * FROM articles_paragraphs_table")
-    fun getArticleParagraphs(): LiveData<List<ArticleParagraph>>
+    @Query("SELECT * FROM articles_paragraphs_table WHERE articleIdFromServer = :articleId")
+    fun getArticleParagraphs(articleId: Int): LiveData<List<ArticleParagraph>>
 
     /**
      * Синхронное получение списка используется для сравнения со списком, полученным с

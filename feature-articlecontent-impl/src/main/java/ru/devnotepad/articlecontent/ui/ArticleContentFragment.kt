@@ -1,7 +1,6 @@
 package ru.devnotepad.articlecontent.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +19,7 @@ class ArticleContentFragment : Fragment() {
 
     companion object {
         private const val RECYCLER_VIEW_CACHE_SIZE = 64
+        const val TEMP_ARTICLE_ID = 13
     }
 
     // TODO: create factory for viewModel.
@@ -44,13 +44,8 @@ class ArticleContentFragment : Fragment() {
         clearComponent()
     }
 
-    private fun clearComponent() {
-        ComponentHolder.clearComponent()
-    }
-
-    private fun initComponent() {
-        ComponentHolder.initComponent(this)
-    }
+    private fun initComponent(): Unit = ComponentHolder.initComponent(this)
+    private fun clearComponent(): Unit = ComponentHolder.clearComponent()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,15 +60,14 @@ class ArticleContentFragment : Fragment() {
         observeViewModel()
     }
 
-    private fun initRecycler() {
-        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.recycler.adapter = articleContentAdapter
+    private fun initRecycler() = with(binding.recycler) {
+        layoutManager = LinearLayoutManager(requireContext())
+        adapter = articleContentAdapter
     }
 
     private fun observeViewModel() = with(viewModel) {
-        articlePiecesLiveData.observe(viewLifecycleOwner) {
+        articlePiecesLiveData(TEMP_ARTICLE_ID).observe(viewLifecycleOwner) {
             populateArticleContentAdapter(it)
-            Log.d("debug", "$it")
         }
     }
 

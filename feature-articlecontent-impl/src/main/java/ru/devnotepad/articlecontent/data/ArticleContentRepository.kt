@@ -8,7 +8,6 @@ import ru.devnotepad.articlecontent.data.local.ArticleHeaderDao
 import ru.devnotepad.articlecontent.data.local.ArticleImageDao
 import ru.devnotepad.articlecontent.data.local.ArticleParagraphDao
 import ru.devnotepad.articlecontent.entities.ArticlePiece
-import java.util.*
 import javax.inject.Inject
 
 class ArticleContentRepository @Inject constructor(
@@ -19,46 +18,26 @@ class ArticleContentRepository @Inject constructor(
     val retrofit: Retrofit
 ) {
 
-    private val articlePiecesMediator = MediatorLiveData<List<ArticlePiece>>()
-    val articlePieces: LiveData<List<ArticlePiece>> get() = articlePiecesMediator
+    fun articlePieces(articleId: Int): LiveData<List<ArticlePiece>> =
+        getArticlePiecesFromMediator(articleId)
 
-    init {
-        addSourcesToArticlePiecesMediator()
-    }
+    private fun getArticlePiecesFromMediator(articleId: Int): LiveData<List<ArticlePiece>> =
+        MediatorLiveData<List<ArticlePiece>>().apply {
 
-    companion object {
-        private const val TEMP_ARTICLE_ID = 13
-    }
+            addSource(articleHeaderDao.getArticleHeaders(articleId)) { articleHeaders ->
+                value = articleHeaders
+            }
 
-    private fun addSourcesToArticlePiecesMediator() {
-        articlePiecesMediator.addSource(articleHeaderDao.getArticleHeaders()) { allHeaders ->
-            articlePiecesMediator.value = getFilteredPieces(allHeaders)
-        }
+            addSource(articleParagraphDao.getArticleParagraphs(articleId)) { articleParagraphs ->
+                value = articleParagraphs
+            }
 
-        articlePiecesMediator.addSource(
-            articleParagraphDao.getArticleParagraphs()
-        ) { allParagraphs ->
-            articlePiecesMediator.value = getFilteredPieces(allParagraphs)
-        }
+            addSource(articleCodeSnippetDao.getArticleCodeSnippets(articleId)) { articleCodeSnippets ->
+                value = articleCodeSnippets
+            }
 
-        articlePiecesMediator.addSource(
-            articleCodeSnippetDao.getArticleCodeSnippets()
-        ) { allCodeSnippets ->
-            articlePiecesMediator.value = getFilteredPieces(allCodeSnippets)
-        }
-
-        articlePiecesMediator.addSource(articleImageDao.getArticleImages()) { allImages ->
-            articlePiecesMediator.value = getFilteredPieces(allImages)
-        }
-    }
-
-    private fun getFilteredPieces(pieces: List<ArticlePiece>): ArrayList<ArticlePiece> {
-        val filteredPieces = ArrayList<ArticlePiece>()
-        for (piece in pieces) {
-            if (piece.articleIdFromServer == TEMP_ARTICLE_ID) {
-                filteredPieces.add(piece)
+            addSource(articleImageDao.getArticleImages(articleId)) { articleImages ->
+                value = articleImages
             }
         }
-        return filteredPieces
-    }
 }

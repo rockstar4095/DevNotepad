@@ -7,8 +7,8 @@ import ru.devnotepad.articlecontent.entities.ArticleImage
 @Dao
 interface ArticleImageDao {
 
-    @Query("SELECT * FROM articles_images_table")
-    fun getArticleImages(): LiveData<List<ArticleImage>>
+    @Query("SELECT * FROM articles_images_table WHERE articleIdFromServer = :articleId")
+    fun getArticleImages(articleId: Int): LiveData<List<ArticleImage>>
 
     /**
      * Синхронное получение списка используется для сравнения со списком, полученным с

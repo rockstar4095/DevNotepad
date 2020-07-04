@@ -7,10 +7,9 @@ import ru.devnotepad.articlecontent.entities.ArticlePiece
 import javax.inject.Inject
 
 class ArticleContentViewModel @Inject constructor(
-    /**articleIdFromServer: Int,*/
     private val articleContentRepository: ArticleContentRepository
 ) : ViewModel() {
 
-    val articlePiecesLiveData: LiveData<List<ArticlePiece>> =
-        articleContentRepository.articlePieces
+    fun articlePiecesLiveData(articleId: Int): LiveData<List<ArticlePiece>> =
+        articleContentRepository.articlePieces(articleId)
 }

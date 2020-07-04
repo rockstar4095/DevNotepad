@@ -13,11 +13,11 @@ import ru.devnotepad.articlecontent.entities.ArticlePiece
 class ArticlePiecesAdapter(context: Context) : RecyclerView.Adapter<ArticlePiecesViewHolder<*>>() {
 
     private val layoutInflater = LayoutInflater.from(context)
-    private var articlePieces = ArrayList<ArticlePiece>()
+    private val articleItems = ArrayList<ArticlePiece>()
 
     fun setArticlePieces(articlePieces: List<ArticlePiece>) {
-        this.articlePieces.addAll(articlePieces)
-
+        articleItems.addAll(articlePieces)
+        articleItems.sortBy { it.positionInArticle }
         notifyDataSetChanged()
     }
 
@@ -38,10 +38,10 @@ class ArticlePiecesAdapter(context: Context) : RecyclerView.Adapter<ArticlePiece
             ArticleParagraphItemBinding.inflate(layoutInflater, parent, false)
         )
 
-    override fun getItemCount(): Int = articlePieces.size
+    override fun getItemCount(): Int = articleItems.size
 
     override fun getItemViewType(position: Int): Int =
-        when (articlePieces[position]) {
+        when (articleItems[position]) {
             is ArticleHeader -> ArticleHeader.VIEW_TYPE
             is ArticleParagraph -> ArticleParagraph.VIEW_TYPE
             else -> throw IllegalArgumentException("Invalid type of data.")
@@ -50,10 +50,10 @@ class ArticlePiecesAdapter(context: Context) : RecyclerView.Adapter<ArticlePiece
     override fun onBindViewHolder(holder: ArticlePiecesViewHolder<*>, position: Int) {
         when (holder) {
             is ArticleHeaderViewHolder ->
-                holder.bindPieceItem(articlePieces[position] as ArticleHeader)
+                holder.bindPieceItem(articleItems[position] as ArticleHeader)
 
             is ArticleParagraphViewHolder ->
-                holder.bindPieceItem(articlePieces[position] as ArticleParagraph)
+                holder.bindPieceItem(articleItems[position] as ArticleParagraph)
         }
     }
 }

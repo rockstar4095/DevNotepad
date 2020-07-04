@@ -8,8 +8,8 @@ import ru.devnotepad.articlecontent.entities.ArticleHeader
 interface ArticleHeaderDao {
 
     // TODO: try to make request using article id.
-    @Query("SELECT * FROM articles_headers_table")
-    fun getArticleHeaders(): LiveData<List<ArticleHeader>>
+    @Query("SELECT * FROM articles_headers_table WHERE articleIdFromServer = :articleId")
+    fun getArticleHeaders(articleId: Int): LiveData<List<ArticleHeader>>
 
     /**
      * Синхронное получение списка используется для сравнения со списком, полученным с

@@ -7,8 +7,8 @@ import ru.devnotepad.articlecontent.entities.ArticleCodeSnippet
 @Dao
 interface ArticleCodeSnippetDao {
 
-    @Query("SELECT * FROM articles_code_snippets_table")
-    fun getArticleCodeSnippets(): LiveData<List<ArticleCodeSnippet>>
+    @Query("SELECT * FROM articles_code_snippets_table WHERE articleIdFromServer = :articleId")
+    fun getArticleCodeSnippets(articleId: Int): LiveData<List<ArticleCodeSnippet>>
 
     /**
      * Синхронное получение списка используется для сравнения со списком, полученным с
