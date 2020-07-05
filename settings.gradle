@@ -1,2 +1,6 @@
+include ':feature-librarynavigation-example'
+include ':feature-librarynavigation-api'
+include ':feature-librarynavigation-impl'
+include ':feature-librarynavigation-impl'
 rootProject.name='Dev Notepad'
 include ':app'
