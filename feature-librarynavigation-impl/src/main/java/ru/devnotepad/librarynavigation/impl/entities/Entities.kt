@@ -1,11 +1,14 @@
 package ru.devnotepad.librarynavigation.impl.entities
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "menu_items")
 data class NestedMenuItem(
-    private val idFromServer: Int,
-    private val hasParent: Boolean,
-    private val parentIdFromServer: Int,
-    private val hasChildren: Boolean,
-    private val childrenList: List<NestedMenuItem>,
+    @PrimaryKey
+    val idFromServer: Int,
+    val parentId: Int,
+    val parentIdFromServer: Int,
     val name: String,
-    private val timeWhenDataChanged: Long
+    val timeWhenDataChanged: Long
 )

@@ -6,14 +6,19 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.devnotepad.librarynavigation.impl.databinding.MenuItemBinding
 import ru.devnotepad.librarynavigation.impl.entities.NestedMenuItem
+import ru.devnotepad.librarynavigation.impl.ui.OnMenuItemClickListener
 
-class MenuItemAdapter(context: Context) : RecyclerView.Adapter<MenuItemViewHolder>() {
+class MenuItemAdapter(
+    context: Context,
+    private val onMenuItemClickListener: OnMenuItemClickListener
+) : RecyclerView.Adapter<MenuItemViewHolder>() {
 
     private val layoutInflater = LayoutInflater.from(context)
     private val menuItems = ArrayList<NestedMenuItem>()
 
-    fun setMenuItems(menuItems: List<NestedMenuItem>) {
-        this.menuItems.addAll(menuItems)
+    fun setMenuItems(menuItems: List<NestedMenuItem>) = with(this.menuItems) {
+        clear()
+        addAll(menuItems)
         notifyDataSetChanged()
     }
 
@@ -26,6 +31,6 @@ class MenuItemAdapter(context: Context) : RecyclerView.Adapter<MenuItemViewHolde
     override fun getItemCount(): Int = menuItems.size
 
     override fun onBindViewHolder(holder: MenuItemViewHolder, position: Int) {
-        holder.bindMenuItem(menuItems[position])
+        holder.bindMenuItem(menuItems[position], onMenuItemClickListener)
     }
 }

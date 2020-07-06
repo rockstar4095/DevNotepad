@@ -8,31 +8,57 @@ class LibraryNavigationViewModel : ViewModel() {
         listOf(
             NestedMenuItem(
                 1,
-                false,
                 0,
-                true,
-                listOf(),
+                0,
                 "menu item 1",
                 1000
             ),
 
             NestedMenuItem(
                 2,
-                false,
                 0,
-                true,
-                listOf(),
+                0,
                 "menu item 2",
                 1000
             ),
 
             NestedMenuItem(
                 3,
-                false,
                 0,
-                true,
-                listOf(),
+                0,
                 "menu item 3",
+                1000
+            ),
+
+            NestedMenuItem(
+                4,
+                1,
+                0,
+                "menu item 4",
+                1000
+            ),
+
+            NestedMenuItem(
+                5,
+                1,
+                0,
+                "menu item 5",
+                1000
+            ),
+
+            NestedMenuItem(
+                6,
+                4,
+                0,
+                "menu item 6",
+                1000
+            ),
+
+            NestedMenuItem(
+                7,
+                6,
+                0,
+                "menu item 7",
                 1000
             )
         )
