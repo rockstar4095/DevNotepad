@@ -1,19 +1,19 @@
 package com.example.devnotepad.ui.fragment_topics
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-
 import com.example.devnotepad.R
 import com.example.devnotepad.StructureData
 import com.example.devnotepad.Topic
 import com.example.devnotepad.ui.OnItemClickListener
 import com.example.devnotepad.ui.ViewModelProviderFactory
+import com.example.devnotepad.ui.activity_main.MainActivity
 import com.example.devnotepad.ui.fragment_articles.ArticlesFragment
 import com.example.devnotepad.ui.fragment_directions.DirectionsFragment
 import dagger.android.support.DaggerFragment
@@ -58,6 +58,16 @@ class TopicsFragment : DaggerFragment(),
         viewModel.allTopics.observe(viewLifecycleOwner, Observer { topics ->
             topics?.let { adapter.setTopics(sortTopicsByDirection(it)) }
         })
+
+        makeHomeButtonEnabled()
+    }
+
+    /**
+     * При открытии данного фрагмента, следующего в смысловой иерархии после фрагмента с
+     * направлениями, устанавливается доступной home button.
+     * */
+    private fun makeHomeButtonEnabled() {
+        (activity!! as MainActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
 
     /**

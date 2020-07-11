@@ -2,7 +2,6 @@ package com.example.devnotepad.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Provider
 

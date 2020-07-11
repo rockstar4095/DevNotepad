@@ -1,6 +1,5 @@
 package com.example.devnotepad.data.data_handlers
 
-import com.example.devnotepad.ArticleCodeSnippet
 import com.example.devnotepad.DynamicArticlePiece
 import com.example.devnotepad.NotepadData
 import com.example.devnotepad.data.repositories.RepositoryContract

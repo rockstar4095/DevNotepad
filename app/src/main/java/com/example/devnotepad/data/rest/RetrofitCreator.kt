@@ -2,7 +2,6 @@ package com.example.devnotepad.data.rest
 
 import com.example.devnotepad.*
 import com.example.devnotepad.utils.RuntimeTypeAdapterFactory
-import com.example.devnotepad.utils.RuntimeTypeAdapterFactory.of
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

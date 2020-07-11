@@ -3,7 +3,6 @@ package com.example.devnotepad.data.local
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.devnotepad.ArticleCodeSnippet
-import com.example.devnotepad.ArticleHeader
 
 /**
  * DAO для работы с содержимым статей.

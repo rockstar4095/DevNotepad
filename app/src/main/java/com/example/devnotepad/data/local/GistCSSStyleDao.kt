@@ -1,7 +1,10 @@
 package com.example.devnotepad.data.local
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.example.devnotepad.GistCSSStyle
 
 /**
@@ -18,4 +21,7 @@ interface GistCSSStyleDao {
 
     @Query("SELECT * FROM gist_css_style_table LIMIT 1")
     fun getCSSStyle(): LiveData<List<GistCSSStyle>>
+
+    @Query("SELECT * FROM gist_css_style_table LIMIT 1")
+    suspend fun getCSSStyleSync(): GistCSSStyle
 }
