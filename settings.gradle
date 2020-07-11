@@ -1,5 +1,8 @@
 include ':feature-articlecontent-impl'
 include ':feature-articlecontent-example'
 include ':feature-articlecontent-api'
+include ':feature-librarynavigation-impl'
+include ':feature-librarynavigation-example'
+include ':feature-librarynavigation-api'
 rootProject.name='Dev Notepad'
 include ':app'
