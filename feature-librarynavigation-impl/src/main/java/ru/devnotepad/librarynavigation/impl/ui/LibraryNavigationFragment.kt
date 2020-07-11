@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,9 +27,8 @@ class LibraryNavigationFragment : Fragment(), OnMenuItemClickListener {
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val viewModel: LibraryNavigationViewModel by viewModels { viewModelFactory }
+
     private lateinit var binding: LibraryNavigationFragmentBinding
-    private var immersionLevel = 0
-    private val userMenuPathIds = ArrayList<Int>()
 
     private val menuItemsAdapter by lazy {
         MenuItemAdapter(requireContext(), this)
@@ -56,66 +56,45 @@ class LibraryNavigationFragment : Fragment(), OnMenuItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initRecycler()
-        observeInitialMenuItems()
+        observeMenuItemContent(INITIAL_MENU_ITEMS_PARENT_ID)
         initOnBackPressedPolicy()
     }
-
-    private fun observeInitialMenuItems() =
-        viewModel.getMenuItems(INITIAL_MENU_ITEMS_PARENT_ID).observe(viewLifecycleOwner) {
-            menuItemsAdapter.setMenuItems(it)
-        }
 
     private fun initRecycler() = with(binding.recycler) {
         layoutManager = LinearLayoutManager(requireContext())
         adapter = menuItemsAdapter
     }
 
-    override fun onMenuItemClick(nestedMenuItem: NestedMenuItem) {
-        removeInitialObserver()
-        openMenuItem(nestedMenuItem)
-    }
+    override fun onMenuItemClick(nestedMenuItem: NestedMenuItem) = openMenuItem(nestedMenuItem)
 
-    private fun removeInitialObserver() = viewModel.getMenuItems(INITIAL_MENU_ITEMS_PARENT_ID)
-        .removeObserver { observeInitialMenuItems() }
-
-    private fun openMenuItem(nestedMenuItem: NestedMenuItem) {
-        increaseImmersionLevel()
-        recordUserPathIds(nestedMenuItem.idFromServer)
+    private fun openMenuItem(nestedMenuItem: NestedMenuItem) =
         observeMenuItemContent(nestedMenuItem.idFromServer)
-    }
 
     private fun observeMenuItemContent(menuItemId: Int) {
-        viewModel.getMenuItems(menuItemId).observe(viewLifecycleOwner) {
-            menuItemsAdapter.setMenuItems(it)
+        viewModel.getMenuItems(menuItemId).observe(viewLifecycleOwner) { childrenList ->
+            if (childrenList.isEmpty()) {
+                openArticle(menuItemId)
+            } else {
+                viewModel.increaseImmersionLevel()
+                viewModel.recordUserPathIds(menuItemId)
+                menuItemsAdapter.setMenuItems(childrenList)
+            }
         }
     }
 
-    private fun recordUserPathIds(idFromServer: Int) =
-        let { userMenuPathIds.add(idFromServer) }
-
-    private fun increaseImmersionLevel() { immersionLevel++ }
-    private fun decreaseImmersionLevel() { immersionLevel-- }
+    private fun openArticle(articleId: Int) =
+        Toast.makeText(requireContext(), "open article $articleId", Toast.LENGTH_SHORT).show()
 
     /**
-     * Doesn't work correctly for now.
+     * TODO: implement popBackStack() instead finish().
+     * TODO: BACK PRESS DOESN'T WORK CORRECTLY! SOLVE THIS PROBLEM.
      * */
     private fun initOnBackPressedPolicy() =
         activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                decreaseImmersionLevel()
-                observeMenuItemContent(getPreviousPathPoint())
+                if (viewModel.immersionLevel == 0) activity?.finish()
+                observeMenuItemContent(viewModel.getPreviousPathPoint())
+                viewModel.decreaseImmersionLevel()
             }
         })
-
-    private fun getPreviousPathPoint(): Int {
-        if (userMenuPathIds.size > 2) return 0
-
-        if (userMenuPathIds.size > 1) {
-            userMenuPathIds.let {
-                it.removeAt(it.lastIndex)
-            }
-        }
-
-        return userMenuPathIds.last()
-    }
 }
