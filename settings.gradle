@@ -1,3 +1,4 @@
+include ':di-common'
 include ':feature-articlecontent-impl'
 include ':feature-articlecontent-example'
 include ':feature-articlecontent-api'
