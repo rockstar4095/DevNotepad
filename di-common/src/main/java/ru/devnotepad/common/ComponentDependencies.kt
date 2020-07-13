@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
  * Поскольку входная точка модуля - фрагмент, компонент инициализируется во фрагменте и ищет
  * зависимости вызовом [Fragment.findComponentDependencies].
  *
- *  идея - https://github.com/Tagakov/modules-and-dagger
+ * идея - https://github.com/Tagakov/modules-and-dagger
  * */
 
 interface ComponentDependencies

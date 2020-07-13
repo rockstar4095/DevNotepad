@@ -2,6 +2,7 @@ package com.example.devnotepad
 
 import com.example.devnotepad.di.AppComponent
 import com.example.devnotepad.di.DaggerAppComponent
+import com.example.devnotepad.di.NewComponentHolder
 import com.example.devnotepad.utils.CSSCodeSource
 import com.example.devnotepad.utils.InternetConnectionChecker
 import dagger.android.AndroidInjector
@@ -21,6 +22,11 @@ class BaseApplication : DaggerApplication() {
         initializeAppComponent()
         registerNetworkStatusCallbacks()
         initializeCSSCodeSource()
+
+        /**
+         * new
+         * */
+        NewComponentHolder.initComponent(this)
     }
 
     private fun initializeCSSCodeSource() {
